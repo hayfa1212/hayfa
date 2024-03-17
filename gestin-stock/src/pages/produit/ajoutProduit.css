@@ -1,0 +1,29 @@
+.produit{
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    width: 20rem;
+    height: 50rem;
+align-items: center;
+margin: 2rem;
+}
+
+.AddProduct{
+   
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+align-items: center;
+    
+}
+.chapms{
+display: flex;
+flex-direction: column;
+gap: 2rem;
+}
+.buttons{
+    width: 15rem;
+    height:1.4rem;
+    display: flex;
+    flex-direction: row;
+}

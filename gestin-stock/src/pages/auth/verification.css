@@ -1,0 +1,30 @@
+.verifieForm{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+.verified{
+    margin-top: 10rem;
+display: flex;
+flex-direction: column;
+justify-content: flex-start;
+gap: 1rem;
+}
+
+
+
+.codeTitle{
+    display: flex;
+}
+.map{
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+}
+.logi{
+    border: none;
+    background-color: transparent;
+    margin-top: 0.2rem;
+    color: red;
+  
+}

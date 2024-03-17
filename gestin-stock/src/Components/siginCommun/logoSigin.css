@@ -1,0 +1,7 @@
+.sigin{
+    display: flex;
+    flex-direction: row;
+   width: 45rem;
+   height: 17rem;
+   margin-top: 15rem;
+}

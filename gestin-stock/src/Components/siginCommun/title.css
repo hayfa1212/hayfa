@@ -1,0 +1,15 @@
+
+.minBox{
+    width: 4rem;
+    height: 3rem;
+}
+.title{
+    font-size: 1.7rem;
+    color: black;
+}
+.p{
+    font-size: 1rem;
+    color: rgb(143, 143, 143);
+    width: 20rem;
+    margin-left: 0.5rem;
+}

@@ -1,0 +1,9 @@
+.link{
+    display: flex;
+    flex-direction: row;
+    gap: 0.3rem;
+    align-items: center;
+}
+.destination{
+    margin: 1rem;
+}
