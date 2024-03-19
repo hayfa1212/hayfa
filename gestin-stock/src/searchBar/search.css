@@ -1,5 +1,14 @@
 .search{
-    width: 1rem;
-    height: 1rem;
-    margin: 3rem;
+    width: 20rem;
+    height: 2rem;
+    
+}
+.notif{
+    width: 2rem;
+    height: 2rem;
+}
+.searchBar{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
 }

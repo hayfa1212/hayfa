@@ -1,29 +1,38 @@
-.produit{
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    width: 20rem;
-    height: 50rem;
-align-items: center;
-margin: 2rem;
-}
+Form{
+ display: flex;
+ flex-direction: column;
+margin-bottom: -1rem;
 
-.AddProduct{
-   
+}
+.column{
     display: flex;
     flex-direction: row;
-    gap: 1rem;
-align-items: center;
-    
+  justify-content: space-around;
 }
-.chapms{
-display: flex;
-flex-direction: column;
-gap: 2rem;
+.add{
+    background-color: #1366D9;
+    color: white;
+    width: 7rem;
+    height: 2.2rem;
+    border: none;
+    border-radius: 0.2rem;
+}
+.cancel{
+    width: 7rem;
+    height: 2.2rem;
+    border: none;
+    border-radius: 0.2rem;
+    background-color: rgba(228, 228, 228,0.5);
+    color: gray;
 }
 .buttons{
-    width: 15rem;
-    height:1.4rem;
     display: flex;
     flex-direction: row;
+    justify-content: flex-end;
+}
+.productclomn{
+    width: 10rem;
+    height: 1rem;
+    border-radius: 0.1rem;
+    border-width: 0.1rem;
 }

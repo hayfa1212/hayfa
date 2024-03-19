@@ -1,0 +1,8 @@
+.supprime{
+    width: 20rem;
+    height: 10rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    background-color: red;
+}

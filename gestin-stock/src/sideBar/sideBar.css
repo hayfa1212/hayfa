@@ -1,16 +1,38 @@
 .sideBar{
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: flex-start;
-  gap: 10rem;
+  gap: 7rem;
   margin: 2rem;
   color: grey;
+  width: 10rem;
+ 
  
   
+}
+.dis{
+  width: 7rem;
+}
+
+.link{
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+ 
 }
 
 .box{
   margin-left: -2rem;
   width: 4rem;
   height: 3rem;
+}
+.icons{
+  width: 1.5rem;
+  height: 1.5rem; 
+}
+.structure{
+  display: flex;
+  flex-direction: column;
+  gap: 5rem;
+
 }

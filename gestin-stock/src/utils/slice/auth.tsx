@@ -1,21 +1,26 @@
 import {createSlice,PayloadAction} from '@reduxjs/toolkit'
 
+
+
+interface DataState{
+    isLoggedIn:boolean
+  }
+  
 const initialState = {
-    addedItems:{} as Record <number,number>,
+    isLoggedIn:false,
 }
 
 const slice=createSlice({
-    name:'courses',
+    name:'auth',
     initialState:initialState,
     reducers:{ 
-        handleauth(state,action:PayloadAction<{isLoggedIn:boolean}>){
+        handellogin(state,action:PayloadAction<{ isLoggedIn:boolean}>){
+            state. isLoggedIn=action.payload. isLoggedIn
+          }
 
-
- 
-     
-     
-        }}
+        
+       }
 })
-
+export const { handellogin }= slice.actions
 export const reducer=slice.reducer
 export default slice

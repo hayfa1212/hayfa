@@ -1,3 +1,4 @@
+import { Provider } from 'react-redux';
 import './App.css';
 import VerifierAccount from './pages/auth/accountVerification';
 
@@ -11,7 +12,9 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-<AppRoutes/>
+
+    <AppRoutes/>
+  
 
       </header>
     </div>
