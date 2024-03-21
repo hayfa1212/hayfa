@@ -7,7 +7,7 @@ margin-bottom: -1rem;
 .column{
     display: flex;
     flex-direction: row;
-  justify-content: space-around;
+  justify-content: space-between;
 }
 .add{
     background-color: #1366D9;

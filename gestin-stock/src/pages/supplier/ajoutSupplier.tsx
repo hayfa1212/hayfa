@@ -5,6 +5,7 @@ import supabase from "../../utils/api";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Modal from "react-modal";
+import './ajoutSupplier.css'
 
 interface Supplier {
   supplier: string;
@@ -56,51 +57,53 @@ const Addsupplier: React.FC<AddSupplierProps> = ({ isOpen, onClose }) => {
       isOpen={isOpen}
       onRequestClose={onClose}
       contentLabel="Add Supplier Modal"
-      style={{content: {width: '25rem', height: '30rem', marginLeft: '25rem'}}}
+      style={{content: {width: '25rem', height: '25rem', marginLeft: '25rem'}}}
     >
-      <h2>Add Supplier</h2>
+   
       <Formik
         initialValues={values}
         validationSchema={validationSchema}
         onSubmit={(values) => handleLogin(values)}
       >
         {({ errors, touched }) => (
-          <Form>
-            <div>
-              <label htmlFor="supplier">Supplier</label>
-              <Field type="text" id="supplier" name="supplier" />
+          <Form className="form">
+               <p>Add Supplier</p>
+            <div className="Supplier">
+              <label htmlFor="supplier" >Supplier</label>
+              <Field type="text" id="supplier" name="supplier"  className="columnSupplier"/>
               {errors.supplier && touched.supplier && (
                 <div>{errors.supplier}</div>
               )}
             </div>
 
-            <div>
-              <label htmlFor="product">Product</label>
-              <Field type="text" id="product" name="product" />
+            <div className="Supplier">
+              <label htmlFor="product" >Product</label>
+              <Field type="text" id="product" name="product"  className="columnSupplier"/>
               {errors.product && touched.product && (
                 <div>{errors.product}</div>
               )}
-            </div>
+            </div >
 
-            <div>
+            <div className="Supplier">
               <label htmlFor="contact">Contact</label>
-              <Field type="number" id="contact" name="contact" />
+              <Field type="number" id="contact" name="contact"  className="columnSupplier"/>
               {errors.contact && touched.contact && (
                 <div>{errors.contact}</div>
               )}
             </div>
 
-            <div>
+            <div className="Supplier">
               <label htmlFor="email">Email</label>
-              <Field type="email" id="email" name="email" />
+              <Field type="email" id="email" name="email" className="columnSupplier" />
               {errors.email && touched.email && (
                 <div>{errors.email}</div>
               )}
             </div>
 
-            <div>
-              <button type="submit">Add</button>
-              <button type="button" onClick={onClose}>Cancel</button>
+            <div className="btnSupplier">
+            
+              <button type="button" onClick={onClose} id="cancel">Cancel</button>
+              <button type="submit" className="confirm">Add Supplier</button>
             </div>
           </Form>
         )}
