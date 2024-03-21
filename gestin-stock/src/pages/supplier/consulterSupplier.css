@@ -1,0 +1,10 @@
+.titleSup{
+    display: flex;
+    flex-direction: row;
+    gap: 11rem;
+}
+.pagination{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}

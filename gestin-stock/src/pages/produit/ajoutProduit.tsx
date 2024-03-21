@@ -16,6 +16,7 @@ interface Product {
   unit: string;
   expire: string;
   thershold: number;
+  availability: string;
 }
 
 const initialValues: Product = {
@@ -27,6 +28,7 @@ const initialValues: Product = {
   unit: "",
   expire: "",
   thershold: 0,
+  availability: "Out of stock",
 };
 
 const validationSchema = Yup.object({
@@ -42,7 +44,6 @@ const validationSchema = Yup.object({
 interface AjoutproduitProps {
   isOpen: boolean;
   onClose: () => void;
-
 }
 
 const Ajoutproduit: React.FC<AjoutproduitProps> = ({ isOpen, onClose }) => {
@@ -55,8 +56,9 @@ const Ajoutproduit: React.FC<AjoutproduitProps> = ({ isOpen, onClose }) => {
    buying_price:values.price,
    quantity:values.quantity,
    unit:values.unit,
-  expire:values.expire,
-  thershold:values.thershold
+   expire:values.expire,
+   thershold:values.thershold,
+   availibilty: values.quantity > 0 ? "in-stock" : "Out of stock"
  },
  ])
  .select()
@@ -81,7 +83,7 @@ const Ajoutproduit: React.FC<AjoutproduitProps> = ({ isOpen, onClose }) => {
           validationSchema={validationSchema}
           onSubmit={(values) => handleLogin(values)}
         >
-          {({ errors, touched }) => (
+          {({ errors, touched, setFieldValue }) => (
             <Form className="form">
               
               <DragImage/>
@@ -112,7 +114,11 @@ const Ajoutproduit: React.FC<AjoutproduitProps> = ({ isOpen, onClose }) => {
             
           <div className="column">
               <label htmlFor='quantity'>quantity</label>
-              <Field type='number' id='quantity' name='quantity'className='productclomn' />
+              <Field type='number' id='quantity' name='quantity'className='productclomn' onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                const { value } = e.target;
+                setFieldValue('quantity', value);
+                setFieldValue('availability', parseInt(value) > 0 ? "In stock" : "Out of stock");
+              }} />
               <ErrorMessage name="quantity" component="div" className="error" />
             </div>
 
@@ -136,8 +142,9 @@ const Ajoutproduit: React.FC<AjoutproduitProps> = ({ isOpen, onClose }) => {
               <ErrorMessage name="thershold" component="div" className="error" />
             </div>
 
+         
+
               <div className='buttons'>
-               
                 <button type='button' onClick={onClose} className="cancel">Discard</button>
                 <button type='submit' className='add'>Add Product</button>
               </div>

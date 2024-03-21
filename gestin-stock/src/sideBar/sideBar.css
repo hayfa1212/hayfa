@@ -2,14 +2,18 @@
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  gap: 7rem;
+  gap: 10rem;
   margin: 2rem;
   color: grey;
-  width: 10rem;
- 
- 
-  
+  width: 10rem; 
 }
+.sideBar .link a {
+  text-decoration: none; /* Supprimer le soulignement */
+  color: inherit; /* Utiliser la couleur par défaut du texte */
+}
+
+
+
 .dis{
   width: 7rem;
 }
@@ -33,6 +37,6 @@
 .structure{
   display: flex;
   flex-direction: column;
-  gap: 5rem;
+  gap: 12rem;
 
 }

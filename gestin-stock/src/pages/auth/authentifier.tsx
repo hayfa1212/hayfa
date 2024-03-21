@@ -42,7 +42,7 @@ const Login: React.FC = () => {
       if (!error) {
         toast.success('Success');
         setIsLoggedIn(!isLoggedIn)
-        navigate('/side')
+        navigate('/inventory')
         const setedSession=  await supabase.auth.setSession({
           access_token:data.session?.access_token,
           refresh_token:data.session?.refresh_token,
