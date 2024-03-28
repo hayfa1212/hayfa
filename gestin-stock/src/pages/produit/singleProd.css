@@ -1,0 +1,64 @@
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right:  10rem;
+   
+    display: flex;
+    justify-content: center;
+    align-items: center;
+ background-color: transparent;
+    z-index: 9999; /* Assure que le modal est au-dessus des autres contenus */
+  margin-bottom: 10rem;
+}
+.popup {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+ 
+    width: 20rem;
+    height: 30rem;
+}
+.edit{
+    width: 5rem;
+    height: 2rem;
+    border-width: 1rem; 
+   background-color: rgba(211, 209, 209, 0.3);
+}
+.update{
+    width: 10rem;
+    height: 1rem;
+    
+}
+.imgedit{
+    width: 1rem;
+    height: 1rem;
+}
+.titre{
+    display: flex;
+    flex-direction: row;
+    gap: 40rem;
+}
+.lign{
+    background-color: rgb(194, 194, 194);
+    width: 130%;
+    height: 0.005rem;
+}
+.left{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+.detail{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+.cadre{
+    width: 15rem;
+}
+.columns{
+    display: flex;
+    flex-direction: row;
+  justify-content: space-between;
+}

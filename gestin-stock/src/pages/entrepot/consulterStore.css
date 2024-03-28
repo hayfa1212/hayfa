@@ -1,0 +1,23 @@
+.store{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+   
+}
+
+
+.storform{
+    display: flex;
+    flex-direction: column;
+
+}
+.trach{
+    width: 2rem;
+    height: 2rem;
+  
+}
+
+.Edit{
+    width: 5rem;
+    height: 2rem;
+}

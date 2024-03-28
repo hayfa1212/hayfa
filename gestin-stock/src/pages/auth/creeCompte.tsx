@@ -47,6 +47,7 @@ const Account: React.FC = () => {
      
   
       if (!error) {
+        
         toast.success('Success');
       } else if (error?.status === 429 && error?.message) {
         toast.error(error.message);

@@ -10,9 +10,16 @@ import supplier from '../Assets/livreur.png';
 import store from '../Assets/magasin.png';
 import setting from '../Assets/parametres.png';
 import logOut from '../Assets/deconnexion.png';
+import supabase from '../utils/api';
+import user from "../Assets/utilisateur.png"
 
 interface SidebarProps {
     children?: ReactNode;
+}
+const handelLogout= async()=>{
+    
+const { error } = await supabase.auth.signOut()
+
 }
 
 export default function Sidebar({ children }: SidebarProps) {
@@ -36,15 +43,18 @@ export default function Sidebar({ children }: SidebarProps) {
                 <NavLink to="/orders">
                     <img src={order} className='icons' alt="Orders icon" />Orders
                 </NavLink>
-                <NavLink to="/manage-store">
+                <NavLink to="/store">
                     <img src={store} className='icons' alt="Manage Store icon" />Manage Store
+                </NavLink>
+                <NavLink to="/users">
+                    <img src={user} className='icons' alt="Manage Store icon" />Users
                 </NavLink>
             </div>
             <div className='link'>
                 <NavLink to="/settings">
                     <img src={setting} className='icons' alt="Settings icon" />Settings
                 </NavLink>
-                <NavLink to="/logout">
+                <NavLink to="/" onClick={handelLogout}>
                     <img src={logOut} className='icons' alt="Logout icon" />Logout
                 </NavLink>
             </div>

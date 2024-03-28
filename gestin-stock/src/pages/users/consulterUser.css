@@ -1,0 +1,10 @@
+.titleUser{
+    display: flex;
+    flex-direction: row;
+  gap: 14rem;
+}
+.ligneuser{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}

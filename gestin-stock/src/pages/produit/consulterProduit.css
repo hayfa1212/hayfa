@@ -19,10 +19,15 @@
 .ligneProd{
     display: flex;
     flex-direction: row ;
-    justify-content: space-between;
-    margin-bottom: -1rem;
- 
-
+   gap: 9rem;
+   margin-bottom: -2rem;
+   text-decoration: none; /* Supprimer le soulignement */
+  color: inherit; 
+}
+.prodform{
+display: flex;
+flex-direction: row;
+justify-content: space-between;
 }
 .titleProd{
     display: flex;

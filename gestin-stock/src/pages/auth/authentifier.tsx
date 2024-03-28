@@ -42,6 +42,11 @@ const Login: React.FC = () => {
       if (!error) {
         toast.success('Success');
         setIsLoggedIn(!isLoggedIn)
+        
+const { error } = await supabase
+.from('utilisateur')
+.update({ connecter: true })
+.eq('email', values.email)
         navigate('/inventory')
         const setedSession=  await supabase.auth.setSession({
           access_token:data.session?.access_token,
@@ -89,7 +94,7 @@ const Login: React.FC = () => {
                 <Field type="checkbox" name="rememberMe"  className='msg'/>
                 <label>   Remember me  </label>
                 </div>
-              <a href="/forgot-password"  className='forgot'>Forgot password?</a>
+              <a href="/frogot"  className='forgot'>Forgot password?</a>
             </div> 
             </div>
             

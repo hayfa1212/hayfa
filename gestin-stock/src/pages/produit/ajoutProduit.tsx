@@ -17,6 +17,7 @@ interface Product {
   expire: string;
   thershold: number;
   availability: string;
+  idSupp: number;
 }
 
 const initialValues: Product = {
@@ -29,6 +30,7 @@ const initialValues: Product = {
   expire: "",
   thershold: 0,
   availability: "Out of stock",
+  idSupp: 0,
 };
 
 const validationSchema = Yup.object({
@@ -38,7 +40,7 @@ const validationSchema = Yup.object({
   quantity: Yup.number(),
   unit: Yup.string(),
   expire: Yup.date(),
-  thershold: Yup.number()
+  thershold: Yup.number(),
 });
 
 interface AjoutproduitProps {
@@ -48,31 +50,31 @@ interface AjoutproduitProps {
 
 const Ajoutproduit: React.FC<AjoutproduitProps> = ({ isOpen, onClose }) => {
   const handleLogin = async (values: Product) => {
-     try {
+    try {
       const { data, error } = await supabase.from('product').insert([
-   {  product_Name: values.name,
-     id: values.id,
-     Category: values.category ,
-   buying_price:values.price,
-   quantity:values.quantity,
-   unit:values.unit,
-   expire:values.expire,
-   thershold:values.thershold,
-   availibilty: values.quantity > 0 ? "in-stock" : "Out of stock"
- },
- ])
- .select()
+        { 
+          product_Name: values.name,
+          id: values.id,
+          Category: values.category,
+          buying_price: values.price,
+          quantity: values.quantity,
+          unit: values.unit,
+          expire: values.expire,
+          thershold: values.thershold,
+          availibilty: values.quantity > 0 ? "in-stock" : "Out of stock",
+          supplier_id: values.idSupp // Assurez-vous que vous utilisez la bonne clé étrangère
+        },
+      ]);
 
- 
-       console.log(data);
- 
-       if (!error) {
-         toast.success('Success');
-       }
-     } catch (error) {
-       console.error('Error during sign up:', error);
-       toast.error('An error occurred during sign up. Please try again later.');
-     } 
+      console.log(data);
+
+      if (!error) {
+        toast.success('Success');
+      }
+    } catch (error) {
+      console.error('Error during sign up:', error);
+      toast.error('An error occurred during sign up. Please try again later.');
+    }
   };
 
   return (
@@ -143,6 +145,13 @@ const Ajoutproduit: React.FC<AjoutproduitProps> = ({ isOpen, onClose }) => {
             </div>
 
          
+         
+            <div className="column">
+             <label htmlFor='idSupp'>idSupp</label>
+              <Field type='number' id='idSupp' name='idSupp' className='productclomn'/>
+              <ErrorMessage name="idSupp" component="div" className="error" />
+            </div>
+
 
               <div className='buttons'>
                 <button type='button' onClick={onClose} className="cancel">Discard</button>

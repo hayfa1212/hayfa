@@ -67,7 +67,7 @@ const Addsupplier: React.FC<AddSupplierProps> = ({ isOpen, onClose }) => {
       >
         {({ errors, touched }) => (
           <Form className="form">
-               <p>Add Supplier</p>
+               <p className="sup">Add Supplier</p>
             <div className="Supplier">
               <label htmlFor="supplier" >Supplier</label>
               <Field type="text" id="supplier" name="supplier"  className="columnSupplier"/>
@@ -102,7 +102,7 @@ const Addsupplier: React.FC<AddSupplierProps> = ({ isOpen, onClose }) => {
 
             <div className="btnSupplier">
             
-              <button type="button" onClick={onClose} id="cancel">Cancel</button>
+              <button type="button" onClick={onClose} id="cancel ">Cancel</button>
               <button type="submit" className="confirm">Add Supplier</button>
             </div>
           </Form>

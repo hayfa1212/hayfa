@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
+import { NavLink, useNavigate } from "react-router-dom"; // Importer NavLink depuis react-router-dom
 import SearchInput from "../../searchBar";
 import supabase from "../../utils/api";
 import { ToastContainer, toast } from "react-toastify";
-import Ajoutproduit from '../../pages/produit/ajoutProduit'; // Import the Ajoutproduit component
+import Ajoutproduit from '../../pages/produit/ajoutProduit';
 import './consulterProduit.css';
 import trach from '../../Assets/Trash.svg'
 import Modal from "react-modal";
@@ -18,18 +19,38 @@ interface Product {
     availibilty:string;
 }
 
-const PAGE_SIZE = 6; // Nombre de produits par page
+const PAGE_SIZE = 8;
 
 const Consulterprod: React.FC = () => {
     const [products, setProducts] = useState<Product[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false); // State to manage modal visibility
-    const [displayProducts, setDisplayProducts] = useState<Product[]>([]); // State to store products to display
-    const [currentPage, setCurrentPage] = useState(1); // State to track current page
-    const [deleteProductId, setDeleteProductId] = useState<number | null>(null); // State to store the ID of the product to delete
+    const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
+    const [displayProducts, setDisplayProducts] = useState<Product[]>([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [deleteProductId, setDeleteProductId] = useState<number | null>(null);
+    const navigate = useNavigate();
 
-    // Function to fetch products
+
+    useEffect(() => {
+        const checkLoggedIn = async () => {
+       
+const { data: { user } } = await supabase.auth.getUser()
+          if (!user) {
+            // Si l'utilisateur n'est pas connecté, redirigez-le vers la page de connexion
+            navigate("/");
+            toast.error('you should login')
+          }
+        };
+    
+        checkLoggedIn();
+      }, [navigate]);
+
+
+
+
+
     const fetchData = async () => {
+
         try {
             const { data, error } = await supabase
                 .from('product')
@@ -47,18 +68,15 @@ const Consulterprod: React.FC = () => {
         }
     };
 
-    // Fetch products on component mount
     useEffect(() => {
         fetchData();
     }, []);
 
-    // Handler for search input
     const handleSearch = (value: string) => {
         setSearchTerm(value);
         filterProducts(value);
     };
 
-    // Function to filter products based on search term
     const filterProducts = (searchTerm: string) => {
         const filtered = products.filter(product =>
             product.product_Name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -66,27 +84,22 @@ const Consulterprod: React.FC = () => {
         setDisplayProducts(filtered);
     };
 
-    // Open modal for adding a product
     const openAddProductModal = () => {
         setIsAddProductModalOpen(true);
     };
 
-    // Close modal for adding a product
     const closeAddProductModal = () => {
         setIsAddProductModalOpen(false);
     };
 
-    // Open modal for deleting a product
     const openDeleteConfirmationModal = (productId: number) => {
         setDeleteProductId(productId);
     };
 
-    // Close modal for deleting a product
     const closeDeleteConfirmationModal = () => {
         setDeleteProductId(null);
     };
 
-    // Delete product
     const deleteProduct = async () => {
         if (deleteProductId !== null) {
             try {
@@ -96,7 +109,6 @@ const Consulterprod: React.FC = () => {
                     .eq('id', deleteProductId);
     
                 if (!error) {
-                    // Remove the deleted product from the state
                     setProducts(prevProducts => prevProducts.filter(product => product.id !== deleteProductId));
                     setDisplayProducts(prevProducts => prevProducts.filter(product => product.id !== deleteProductId));
                     toast.success('Product deleted successfully');
@@ -112,28 +124,24 @@ const Consulterprod: React.FC = () => {
         }
     };
 
-    // Function to get products for the current page
     const getCurrentPageProducts = () => {
         const startIndex = (currentPage - 1) * PAGE_SIZE;
         const endIndex = startIndex + PAGE_SIZE;
         return displayProducts.slice(startIndex, endIndex);
     };
 
-    // Function to handle next page
     const nextPage = () => {
         if (currentPage < getTotalPages()) {
             setCurrentPage(currentPage + 1);
         }
     };
 
-    // Function to handle previous page
     const previousPage = () => {
         if (currentPage > 1) {
             setCurrentPage(currentPage - 1);
         }
     };
 
-    // Function to get total number of pages
     const getTotalPages = () => {
         return Math.ceil(displayProducts.length / PAGE_SIZE);
     };
@@ -161,14 +169,16 @@ const Consulterprod: React.FC = () => {
                             <p>Availability</p>
                         </div>
                         {getCurrentPageProducts().map(product => (
-                            <div key={product.id}>
-                                <div className="ligneProd">
+                            <div key={product.id} >
+                                <div  className="prodform">
+                                <NavLink to={`/product/${product.id}`} className="ligneProd"  >
                                     <p>{product.product_Name}</p>
                                     <p>{product.buying_price}</p>
                                     <p>{product.quantity}</p>
                                     <p>{product.thershold}</p>
                                     <p>{product.expire}</p>
                                     <p style={{ color: product.availibilty === 'in-stock' ? '#10A760' : 'red' }}>{product.availibilty}</p>
+                                    </NavLink>
                                     <img src={trach} className="trach" onClick={() => openDeleteConfirmationModal(product.id)} />
                                 </div>
                                 <p className="ligne"></p>
@@ -187,13 +197,10 @@ const Consulterprod: React.FC = () => {
                 onRequestClose={closeDeleteConfirmationModal}
             >
                 <h2>Confirm Deletion</h2>
-               
-
                 <p>Are you sure you want to delete this product?</p>
                 <div className="desecion">
                 <button onClick={closeDeleteConfirmationModal} className="canc">Cancel</button>
                 <button onClick={deleteProduct} className="del">Delete</button>
-                
                 </div>
             </Modal>
 

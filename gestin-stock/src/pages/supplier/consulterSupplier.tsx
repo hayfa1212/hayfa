@@ -9,6 +9,7 @@ import trach from '../../Assets/Trash.svg'
 
 import Modal from "react-modal";
 import Addsupplier from "../../pages/supplier/ajoutSupplier";
+import { useNavigate } from "react-router-dom";
 
 interface Supplier {
     id: number;
@@ -25,12 +26,28 @@ const ConsulterFournisseur: React.FC = () => {
     const [deleteSupplierId, setDeleteSupplierId] = useState<number | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(6);
-
     const indexOfLastSupplier = currentPage * itemsPerPage;
     const indexOfFirstSupplier = indexOfLastSupplier - itemsPerPage;
     const currentSuppliers = suppliers.slice(indexOfFirstSupplier, indexOfLastSupplier);
-
     const totalPages = Math.ceil(suppliers.length / itemsPerPage);
+
+
+    const navigate = useNavigate();
+
+
+    useEffect(() => {
+        const checkLoggedIn = async () => {
+       
+const { data: { user } } = await supabase.auth.getUser()
+          if (!user) {
+            // Si l'utilisateur n'est pas connecté, redirigez-le vers la page de connexion
+            navigate("/");
+            toast.error('you should login')
+          }
+        };
+    
+        checkLoggedIn();
+      }, [navigate]);
 
     const fetchData = async () => {
         try {
@@ -131,7 +148,7 @@ const ConsulterFournisseur: React.FC = () => {
                         </div>
                         {currentSuppliers.map(supplier => (
                             <div key={supplier.id}>
-                                <div className="ligneProd">
+                                <div className="lignesuuolier">
                                     <p> {supplier.name}</p>
                                     <p>{supplier.product}</p>
                                     <p>{supplier.contact}</p>
