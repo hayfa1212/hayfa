@@ -1,10 +1,4 @@
-.columnSupplier{
-    
-    height: 1.5rem;
-    border-radius: 0.2rem;
-    border-width: 0.1rem;
-    width: 15rem;
-}
+
 .Supplier{
     display: flex;
     flex-direction: row;
@@ -18,16 +12,17 @@
     
  
 }
-#cancel{
-    width: 5rem;
-    height: 2rem;
+#cancels{
+    width: 6rem;
+    height: 2.2rem;
 }
 .confirm{
     width: 6rem;
-    height: 2rem;
-    background-color: rgb(45, 45, 218);
+    height: 2.2rem;
+    background-color:  #1366D9;
     border: none;
     border-radius: 0.1rem;
+    color: white;
 }
 .sup{
 display: flex;

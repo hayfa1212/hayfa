@@ -1,14 +1,24 @@
 .search{
-    width: 20rem;
-    height: 2rem;
-    
+    width: 17rem;
+    height: 2.2rem;
+    margin-top: 2rem;
+   margin-left: 3rem;    
 }
 .notif{
-    width: 2rem;
-    height: 2rem;
+    width:  1.5rem;
+    height: 1.5rem;
+    margin-right: 2rem;
+    margin-top: 2rem;
 }
 .searchBar{
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    background-color: white;
+    width: 70rem;
+height: 7rem;
+margin-left: 0.2rem;
+margin-top: -2rem;
+border-radius: 0.1rem;
+
 }

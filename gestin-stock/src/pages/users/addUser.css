@@ -2,10 +2,30 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    
 }
 .btnUser{
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
     gap: 1rem;
+}
+#newUser{
+    font-size: 1.5rem;
+    margin-top: -0.5rem;
+    color: #383E49;
+}
+.columnUser{
+    width: 13rem;
+    height: 2rem;
+    border-radius: 0.3rem;
+    border-width: 0.02rem;
+    border: 0.1px solid rgb(216, 216, 216);
+}
+.drag{
+margin-top: -1rem;
+}
+#attribute{
+    color: #48505E;
+  
 }

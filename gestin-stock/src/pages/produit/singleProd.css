@@ -37,28 +37,79 @@
 .titre{
     display: flex;
     flex-direction: row;
-    gap: 40rem;
+    justify-content: space-between;
 }
-.lign{
-    background-color: rgb(194, 194, 194);
-    width: 130%;
-    height: 0.005rem;
-}
-.left{
+.bttn{
     display: flex;
     flex-direction: row;
+    gap: 0.5rem;
+    margin-right: 1rem;
+    margin-top: 1rem;
+}
+
+.left{
+    display: flex;
+    flex-direction: column;
     justify-content: flex-start;
+    gap: -1rem;
+}
+.over{
+    display: flex;
+    justify-content: flex-start;
+    color: #667085;
+    gap: 2rem;
+   
 }
 .detail{
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
+    margin-left: 2rem;
+    color: #48505E;
+    font-weight: 500;
+    font-size: 1.1rem;
 }
 .cadre{
-    width: 15rem;
+    display: flex;
+    flex-direction: row;
+   gap: 25rem;
+   margin-left: 2rem;
 }
 .columns{
     display: flex;
     flex-direction: row;
   justify-content: space-between;
+  gap: 5rem;
+}
+.prods{
+    color: #383E49;
+    font-size: 1.5rem;
+    margin-left: 1rem;
+}
+.warehouse{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    margin-left: 2rem;
+  gap: 6rem;
+  
+}
+.warehouses{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    margin-left: 2rem;
+  gap: 10rem;
+}
+#titre{
+    color: #858D9D;
+    font-weight:400;
+}
+#valeur{
+    color: #5D6679;
+    font-weight:500;
+}
+.roduitimg{
+    width: 12rem;
+    height: 12rem;
 }

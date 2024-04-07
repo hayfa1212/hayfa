@@ -150,7 +150,7 @@ const { data: { user } } = await supabase.auth.getUser()
         <div className="home">
             <div>
                 <SearchInput onSearch={handleSearch} />
-                <div>
+                <div className="change">
                     <div className="headProd">
                         <p className="titlehead">Products</p>
                         <div className="buttons">
@@ -167,18 +167,21 @@ const { data: { user } } = await supabase.auth.getUser()
                             <p>Thershold values</p>
                             <p>expiry data</p>
                             <p>Availability</p>
+                            <p>Action</p>
                         </div>
+                        <p className="ligne"></p>
                         {getCurrentPageProducts().map(product => (
                             <div key={product.id} >
                                 <div  className="prodform">
                                 <NavLink to={`/product/${product.id}`} className="ligneProd"  >
                                     <p>{product.product_Name}</p>
+                                    </NavLink>
                                     <p>{product.buying_price}</p>
                                     <p>{product.quantity}</p>
                                     <p>{product.thershold}</p>
                                     <p>{product.expire}</p>
                                     <p style={{ color: product.availibilty === 'in-stock' ? '#10A760' : 'red' }}>{product.availibilty}</p>
-                                    </NavLink>
+                                    
                                     <img src={trach} className="trach" onClick={() => openDeleteConfirmationModal(product.id)} />
                                 </div>
                                 <p className="ligne"></p>

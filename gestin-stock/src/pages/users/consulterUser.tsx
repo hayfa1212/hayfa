@@ -9,6 +9,7 @@ import Modal from "react-modal";
 import "./consulterUser.css";
 import edit from "../../Assets/edition.png";
 import EditUserModal from "../users/updateUser";
+import { NavLink, useNavigate } from "react-router-dom";
 
 interface User {
   id: number;
@@ -16,6 +17,8 @@ interface User {
   email: string;
   phone: number;
   role: string;
+  image:string;
+  
 }
 
 const PAGE_SIZE = 6;
@@ -28,6 +31,28 @@ const ConsulterUsers: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteUserId, setDeleteUserId] = useState<number | null>(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const navigate = useNavigate();
+
+
+    useEffect(() => {
+        const checkLoggedIn = async () => {
+       
+const { data: { user } } = await supabase.auth.getUser()
+          if (!user) {
+            // Si l'utilisateur n'est pas connecté, redirigez-le vers la page de connexion
+            navigate("/");
+            toast.error('you should login')
+          }
+        };
+    
+        checkLoggedIn();
+      }, [navigate]);
+
+
+
+
+
+
 
   const fetchUsers = async () => {
     try {
@@ -172,7 +197,7 @@ const ConsulterUsers: React.FC = () => {
     <div className="home">
       <div>
         <SearchInput onSearch={handleSearch} />
-        <div>
+        <div className="change">
           <div className="headProd">
             <p className="titlehead">Users</p>
             <div className="buttons">
@@ -186,18 +211,23 @@ const ConsulterUsers: React.FC = () => {
           </div>
           <div>
             <div className="titleUser">
-              <p>Name</p>
+              <p>Full Name</p>
               <p>Email</p>
-              <p>Phone</p>
+              <p>Phone Number</p>
               <p>Role</p>
+              <p>Action</p>
             </div>
             {getCurrentPageUsers().map((user) => (
               <div key={user.id}>
                 <div className="ligneuser">
+                <div className="fullname">
+                <img src={user.image} alt={user.name} className="user-image" />
                   <p>{user.name}</p>
+                  </div>
                   <p>{user.email}</p>
                   <p>{user.phone}</p>
-                  <p>{user.role}</p>
+                  <p style={{ color: user.role === 'admin' ? '#10A760' : '#F79009' }}>{user.role}</p>
+
                   <div>
                     <img
                       src={edit}
@@ -236,6 +266,15 @@ const ConsulterUsers: React.FC = () => {
         className="modal"
         isOpen={deleteUserId !== null}
         onRequestClose={closeDeleteConfirmationModal}
+        style={{
+          overlay: {
+            backgroundColor: 'rgba(255, 255, 255, 0.7)' // Couleur de fond du modal
+          },
+          content: {
+            backgroundColor: 'rgb(248, 245, 245)' // Couleur de fond du contenu du modal
+           
+          }
+        }}
       >
         <h2>Confirm Deletion</h2>
         <p>Are you sure you want to delete this user?</p>

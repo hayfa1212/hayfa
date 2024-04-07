@@ -1,23 +1,88 @@
-.store{
+.storform{
+    display: flex;
+    flex-direction: row;
+   gap: 2rem;
+border-radius: 0.3rem;
+border: 1px solid #F0F1F3;
+width: 60rem;
+margin-left: 3rem;
+}
+.headstore{
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-   
-}
-
-
-.storform{
-    display: flex;
-    flex-direction: column;
-
+    margin-left: 2rem;
+    margin-right: 2rem;
 }
 .trach{
+    width: 1.5rem;
+    height: 1.5rem; 
+}
+.trachs{
     width: 2rem;
     height: 2rem;
-  
+    margin-top: 1rem;
+   
 }
-
 .Edit{
     width: 5rem;
     height: 2rem;
+    margin-top: 1rem;
+}
+.imgstore{
+    border-radius: 0.1rem;
+}
+
+.rectangle{
+    width: 17.2rem;
+    height: 10rem;
+    background-color: #F0F1F3;
+}
+
+.modale {
+    background-color: #fff; 
+    border: 0.1rem solid #ebeaea; 
+    border-radius: 5px; 
+    width: 25rem;
+    height: 27rem;
+    margin-left: 30rem;
+    margin-top: 5rem;
+    padding: 20px; /* Espacement intérieur */
+    
+}
+#form{
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+#editstore{
+    width: 5rem;
+    height: 2rem;
+    border: 0.1px solid #E8F1FD ;
+    color: blue;
+}
+.formstore{
+    display: flex;
+    flex-direction: row;
+    gap: 26rem;  
+}
+#storename{
+    color: #5D6679;
+    font-weight: 450;
+}
+#info{
+    color: #858D9D;
+}
+.descrep{
+    height: 4rem;
+    width: 13rem;
+    border-radius: 0.2rem;
+    border: 0.1px solid rgb(216, 216, 216);
+}
+.decison{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    margin-top: 1rem;
+   
 }

@@ -1,15 +1,31 @@
 .titleSup{
     display: flex;
     flex-direction: row;
-    gap: 11rem;
+ justify-content: space-evenly;
+
+  margin-left: 1rem;
+  font-size: 0.9rem;
 }
+
 .pagination{
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: space-around;
 }
 .lignesuuolier {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+justify-content: space-evenly;
+ font-size: 0.8rem;
+    font-weight: 500;
+    color: #48505E;
+    margin-left: 1rem;
+}
+#su{
+    margin-left: 1rem;
+    
+}
+#sus{
+    margin-right: 1rem;
+    
 }

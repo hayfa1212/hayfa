@@ -6,9 +6,9 @@ export default function Msglink({msg,destination,direction}:{
     direction:string
 }){
     return(
-        <div className='link'>
+        <div id='link'>
         
-        <p>{msg}</p>
+        <p id='msg'>{msg}</p>
 <a href={direction} className='destination'>{destination}</a>
         </div>
     )

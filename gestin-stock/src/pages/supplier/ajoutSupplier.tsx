@@ -9,9 +9,12 @@ import './ajoutSupplier.css'
 
 interface Supplier {
   supplier: string;
+  id:Number;
   product: string;
   contact: number;
   email:string;
+  type:string;
+  onTheWay:string;
 }
 
 interface AddSupplierProps {
@@ -24,13 +27,18 @@ const initialValues: Supplier = {
   product: "",
   contact: 0,
   email:"",
+  type:"",
+  onTheWay:"",
+  id:0,
 };
 
 const validationSchema = Yup.object({
   supplier: Yup.string().required("Required"),
   product: Yup.string().required("Required"),
   contact: Yup.number().required(),
-  email:Yup.string().email()
+  email:Yup.string().email(),
+  type:Yup.string(),
+  onTheWay:Yup.string()
 });
 
 const Addsupplier: React.FC<AddSupplierProps> = ({ isOpen, onClose }) => {
@@ -43,6 +51,9 @@ const Addsupplier: React.FC<AddSupplierProps> = ({ isOpen, onClose }) => {
         product: values.product,
         contact: values.contact,
         email:values.email,
+        type:values.type,
+        onTheWay:values.onTheWay,
+        id:values.id
       });
       toast.success("Supplier added successfully!");
       onClose(); // Close the modal after successful submission
@@ -67,10 +78,17 @@ const Addsupplier: React.FC<AddSupplierProps> = ({ isOpen, onClose }) => {
       >
         {({ errors, touched }) => (
           <Form className="form">
-               <p className="sup">Add Supplier</p>
+               <p id="attribute">Add Supplier</p>
             <div className="Supplier">
-              <label htmlFor="supplier" >Supplier</label>
-              <Field type="text" id="supplier" name="supplier"  className="columnSupplier"/>
+              <label htmlFor="supplier" >Supplier Name</label>
+              <Field type="text" id="supplier" name="supplier"  className="columnUser" placeholder="Enter supplier name"/>
+              {errors.supplier && touched.supplier && (
+                <div>{errors.supplier}</div>
+              )}
+            </div>
+            <div className="Supplier">
+              <label htmlFor="id" >Supplier ID</label>
+              <Field type="number" id="id" name="id" className="columnUser" placeholder="Enter supplier id"/>
               {errors.supplier && touched.supplier && (
                 <div>{errors.supplier}</div>
               )}
@@ -78,7 +96,7 @@ const Addsupplier: React.FC<AddSupplierProps> = ({ isOpen, onClose }) => {
 
             <div className="Supplier">
               <label htmlFor="product" >Product</label>
-              <Field type="text" id="product" name="product"  className="columnSupplier"/>
+              <Field type="text" id="product" name="product"  className="columnUser" placeholder="Enter Product Name"/>
               {errors.product && touched.product && (
                 <div>{errors.product}</div>
               )}
@@ -86,7 +104,7 @@ const Addsupplier: React.FC<AddSupplierProps> = ({ isOpen, onClose }) => {
 
             <div className="Supplier">
               <label htmlFor="contact">Contact</label>
-              <Field type="number" id="contact" name="contact"  className="columnSupplier"/>
+              <Field type="number" id="contact" name="contact"  className="columnUser" placeholder="Enter supplier contact "/>
               {errors.contact && touched.contact && (
                 <div>{errors.contact}</div>
               )}
@@ -94,7 +112,26 @@ const Addsupplier: React.FC<AddSupplierProps> = ({ isOpen, onClose }) => {
 
             <div className="Supplier">
               <label htmlFor="email">Email</label>
-              <Field type="email" id="email" name="email" className="columnSupplier" />
+              <Field type="email" id="email" name="email" className="columnUser" placeholder="Enter email" />
+              {errors.email && touched.email && (
+                <div>{errors.email}</div>
+              )}
+            </div>
+            <div className="Supplier">
+            <label htmlFor="type">Type</label>
+             <Field as="select" id="type" name="type" className="columnUser">
+             <option value="">Select Type</option>
+             <option value=" Take Return">Take Return</option>
+             <option value="not Take Return">Not Take Return</option>
+            </Field>
+          {errors.type && touched.type && (
+             <div>{errors.type}</div>
+              )}
+             </div>
+
+            <div className="Supplier">
+              <label htmlFor="onTheWay">On The Way</label>
+              <Field type="text" id="onTheWay" name="onTheWay" className="columnUser" placeholder="Enter the way" />
               {errors.email && touched.email && (
                 <div>{errors.email}</div>
               )}
@@ -102,7 +139,7 @@ const Addsupplier: React.FC<AddSupplierProps> = ({ isOpen, onClose }) => {
 
             <div className="btnSupplier">
             
-              <button type="button" onClick={onClose} id="cancel ">Cancel</button>
+              <button type="button" onClick={onClose} id="cancels">Cancel</button>
               <button type="submit" className="confirm">Add Supplier</button>
             </div>
           </Form>

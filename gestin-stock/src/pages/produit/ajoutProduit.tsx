@@ -1,11 +1,20 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { ToastContainer, toast } from 'react-toastify';
 import Modal from 'react-modal'
 import supabase from "../../utils/api";
-import './ajoutProduit.css'
-import DragImage from "./dragImg";
+import './ajoutProduit.css';
+
+interface Supplier {
+  id: number;
+  name: string;
+}
+
+interface Warehouse {
+  id: number;
+  name: string;
+}
 
 interface Product {
   name: string;
@@ -18,6 +27,8 @@ interface Product {
   thershold: number;
   availability: string;
   idSupp: number;
+  idWarehouse: number;
+  image: string; 
 }
 
 const initialValues: Product = {
@@ -31,6 +42,8 @@ const initialValues: Product = {
   thershold: 0,
   availability: "Out of stock",
   idSupp: 0,
+  idWarehouse: 0,
+  image: "", 
 };
 
 const validationSchema = Yup.object({
@@ -49,8 +62,52 @@ interface AjoutproduitProps {
 }
 
 const Ajoutproduit: React.FC<AjoutproduitProps> = ({ isOpen, onClose }) => {
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
+
+  useEffect(() => {
+    const fetchSuppliers = async () => {
+      try {
+        const { data, error } = await supabase.from('supplier').select('*');
+        if (error) {
+          throw error;
+        }
+        setSuppliers(data as Supplier[]);
+      } catch (error) {
+        console.error(error);
+        toast.error('Error fetching suppliers.');
+      }
+    };
+    fetchSuppliers();
+
+    const fetchWarehouses = async () => {
+      try {
+        const { data, error } = await supabase.from('entrepot').select('*');
+        if (error) {
+          throw error;
+        }
+        setWarehouses(data as Warehouse[]);
+      } catch (error) {
+        console.error(error);
+        toast.error('Error fetching warehouses.');
+      }
+    };
+    fetchWarehouses();
+  }, []);
+
   const handleLogin = async (values: Product) => {
     try {
+      let imageUrl = "";
+      if (imageFile) {
+        const { data, error } = await supabase.storage.from("imageprod").upload(values.name, imageFile);
+        if (error) {
+          throw error;
+        }
+        const response = await supabase.storage.from("imageprod").getPublicUrl(values.name);
+        imageUrl = response.data.publicUrl;
+      }
+
       const { data, error } = await supabase.from('product').insert([
         { 
           product_Name: values.name,
@@ -62,7 +119,9 @@ const Ajoutproduit: React.FC<AjoutproduitProps> = ({ isOpen, onClose }) => {
           expire: values.expire,
           thershold: values.thershold,
           availibilty: values.quantity > 0 ? "in-stock" : "Out of stock",
-          supplier_id: values.idSupp // Assurez-vous que vous utilisez la bonne clé étrangère
+          supplier_id: values.idSupp,
+          idStore: values.idWarehouse,
+          image: imageUrl 
         },
       ]);
 
@@ -72,8 +131,8 @@ const Ajoutproduit: React.FC<AjoutproduitProps> = ({ isOpen, onClose }) => {
         toast.success('Success');
       }
     } catch (error) {
-      console.error('Error during sign up:', error);
-      toast.error('An error occurred during sign up. Please try again later.');
+      console.error(error);
+      toast.error('Error adding product.');
     }
   };
 
@@ -87,77 +146,88 @@ const Ajoutproduit: React.FC<AjoutproduitProps> = ({ isOpen, onClose }) => {
         >
           {({ errors, touched, setFieldValue }) => (
             <Form className="form">
-              
-              <DragImage/>
-             <div className="column">
-              <label htmlFor='name'>Name</label>
-              <Field type='text' id='name' name='name' className='productclomn' />
-              <ErrorMessage name="name" component="div" className="error" />
-            </div>
-
-            <div className="column">
-              <label htmlFor='id'>ID</label>
-              <Field type='number' id='id' name='id' className='productclomn' />
-              <ErrorMessage name="id" component="div" className="error" />
-            </div>
-
-            <div className="column">
-              <label htmlFor='category'>Category</label>
-              <Field type='text' id='category' name='category' className='productclomn' />
-              <ErrorMessage name="category" component="div" className="error" />
-            </div>
-
-            <div className="column">
-              <label htmlFor='price'>price</label>
-              <Field type='number' id='price' name='price' className='productclomn' />
-              <ErrorMessage name="price" component="div" className="error" />
-            </div>
-
-            
-          <div className="column">
-              <label htmlFor='quantity'>quantity</label>
-              <Field type='number' id='quantity' name='quantity'className='productclomn' onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                const { value } = e.target;
-                setFieldValue('quantity', value);
-                setFieldValue('availability', parseInt(value) > 0 ? "In stock" : "Out of stock");
-              }} />
-              <ErrorMessage name="quantity" component="div" className="error" />
-            </div>
-
-            <div className="column">
-             <label htmlFor='unit'>unit</label>
-              <Field type='text' id='unit' name='unit' className='productclomn' />
-              <ErrorMessage name="unit" component="div" className="error" />
-            </div>
-
-
-             <div className="column">
-             <label htmlFor='expire'>expire</label>
-              <Field type='date' id='expire' name='expire' className='productclomn' />
-              <ErrorMessage name="expire" component="div" className="error" />
-            </div>
-                   
-
+              <p id="newUser">New Product</p>
               <div className="column">
-             <label htmlFor='thershold'>thershold</label>
-              <Field type='float' id='thershold' name='thershold' className='productclomn'/>
-              <ErrorMessage name="thershold" component="div" className="error" />
-            </div>
-
-         
-         
-            <div className="column">
-             <label htmlFor='idSupp'>idSupp</label>
-              <Field type='number' id='idSupp' name='idSupp' className='productclomn'/>
-              <ErrorMessage name="idSupp" component="div" className="error" />
-            </div>
-
-
+                <input
+                  id="image"
+                  name="image"
+                  className="drag"
+                  type="file"
+                  onChange={(event) => {
+                    if (event.currentTarget.files && event.currentTarget.files.length > 0) {
+                      setImageFile(event.currentTarget.files[0]);
+                    }
+                  }}
+                />
+              </div>
+              <div className="column">
+                <label htmlFor='name' id="attribute">Product Name</label>
+                <Field type='text' id='name' name='name' className="columnUser" placeholder="Enter Product Name" />
+                <ErrorMessage name="name" component="div" className="error" />
+              </div>
+              <div className="column">
+                <label htmlFor='id' id="attribute">Product ID</label>
+                <Field type='number' id='id' name='id' className="columnUser" placeholder="Enter Product Name" />
+                <ErrorMessage name="id" component="div" className="error" />
+              </div>
+              <div className="column">
+                <label htmlFor='category'>Category</label>
+                <Field type='text' id='category' name='category' className="columnUser"  placeholder="Enter Product Category"/>
+                <ErrorMessage name="category" component="div" className="error" />
+              </div>
+              <div className="column">
+                <label htmlFor='price'> Buying Price</label>
+                <Field type='number' id='price' name='price' className="columnUser" placeholder="Enter Buying Price" />
+                <ErrorMessage name="price" component="div" className="error" />
+              </div>
+              <div className="column">
+                <label htmlFor='quantity'>Quantity</label>
+                <Field type='number' id='quantity' name='quantity'className="columnUser"  placeholder="ENter Product quantity" onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  const { value } = e.target;
+                  setFieldValue('quantity', value);
+                  setFieldValue('availability', parseInt(value) > 0 ? "In stock" : "Out of stock");
+                }} />
+                <ErrorMessage name="quantity" component="div" className="error" />
+              </div>
+              <div className="column">
+                <label htmlFor='unit'>Unit</label>
+                <Field type='text' id='unit' name='unit' className="columnUser"  placeholder="Enter Product unit"/>
+                <ErrorMessage name="unit" component="div" className="error" />
+              </div>
+              <div className="column">
+                <label htmlFor='expire'>Expiry Date</label>
+                <Field type='date' id='expire' name='expire' className="columnUser" placeholder="Enter expiry date" />
+                <ErrorMessage name="expire" component="div" className="error" />
+              </div>
+              <div className="column">
+                <label htmlFor='thershold'>Thershold Value</label>
+                <Field type='float' id='thershold' name='thershold' className="columnUser" placeholder="Enter thershold value" />
+                <ErrorMessage name="thershold" component="div" className="error" />
+              </div>
+              <div className="column">
+                <label htmlFor='idSupp'>Supplier</label>
+                <Field as="select" id='idSupp' name='idSupp' className="columnUser">
+                  <option value="">Select Supplier</option>
+                  {suppliers.map(supplier => (
+                    <option key={supplier.id} value={supplier.id}>{supplier.name}</option>
+                  ))}
+                </Field>
+                <ErrorMessage name="idSupp" component="div" className="error" />
+              </div>
+              <div className="column">
+                <label htmlFor='idWarehouse'>Warehouse</label>
+                <Field as="select" id='idWarehouse' name='idWarehouse' className="columnUser">
+                  <option value="">Select Warehouse</option>
+                  {warehouses.map(warehouse => (
+                    <option key={warehouse.id} value={warehouse.id}>{warehouse.name}</option>
+                  ))}
+                </Field>
+                <ErrorMessage name="idWarehouse" component="div" className="error" />
+              </div>
               <div className='buttons'>
                 <button type='button' onClick={onClose} className="cancel">Discard</button>
                 <button type='submit' className='add'>Add Product</button>
               </div>
-
               <ToastContainer />
             </Form>
           )}

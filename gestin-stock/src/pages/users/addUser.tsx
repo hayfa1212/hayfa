@@ -5,13 +5,15 @@ import supabase from "../../utils/api";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Modal from "react-modal";
-import './addUser.css'
+import "./addUser.css";
+
 
 interface User {
   name: string;
   email: string;
   phone: number;
   role: string;
+  image: File | null; // Modifié pour contenir un objet File
 }
 
 interface AddSupplierProps {
@@ -24,6 +26,7 @@ const initialValues: User = {
   email: "",
   phone: 0,
   role: "",
+  image: null, // Modifié pour contenir un objet File
 };
 
 const validationSchema = Yup.object({
@@ -36,16 +39,49 @@ const validationSchema = Yup.object({
 const Adduser: React.FC<AddSupplierProps> = ({ isOpen, onClose }) => {
   const [values, setValues] = useState(initialValues);
 
-  const handleLogin = async (values: User) => {
+  const handleUpload = async (values: User) => {
     try {
-      await supabase.from("utilisateur").insert({
-        name: values.name,
-        email: values.email,
-        phone: values.phone,
-        role: values.role,
-      });
+      if (values.image !== null) {
+        const { data, error } = await supabase.storage.from("test").upload(
+          values.name,
+          values.image
+        );
+        if (error) {
+          throw error;
+        }
+        const response = await supabase.storage.from("test").getPublicUrl(values.name);
+const imageUrl = response.data.publicUrl;
+
+
+
+        const { error: insertError } = await supabase
+          .from("utilisateur")
+          .insert({
+            name: values.name,
+            email: values.email,
+            phone: values.phone,
+            role: values.role,
+            image: imageUrl,
+          });
+        if (insertError) {
+          throw insertError;
+        }
+      } else {
+        const { error: insertError } = await supabase
+          .from("utilisateur")
+          .insert({
+            name: values.name,
+            email: values.email,
+            phone: values.phone,
+            role: values.role,
+          });
+        if (insertError) {
+          throw insertError;
+        }
+      }
+
       toast.success("User added successfully!");
-      onClose(); // Close the modal after successful submission
+      onClose();
     } catch (error) {
       console.error("Error adding user:", error);
       toast.error("Failed to add user");
@@ -57,54 +93,71 @@ const Adduser: React.FC<AddSupplierProps> = ({ isOpen, onClose }) => {
       isOpen={isOpen}
       onRequestClose={onClose}
       contentLabel="Add User Modal"
-      style={{content: {width: '22rem', height: '22rem', marginLeft: '25rem'}}}
+      style={{ content: { width: "25rem", height: "26rem", marginLeft: "25rem" ,marginTop:"5rem"} }}
     >
-   
       <Formik
         initialValues={values}
         validationSchema={validationSchema}
-        onSubmit={(values) => handleLogin(values)}
+        onSubmit={(values) => handleUpload(values)}
       >
-        {({ errors, touched }) => (
+        {({ errors, touched, setFieldValue }) => (
           <Form className="form">
-               <p>Add User</p>
+            <p id="newUser">New User</p>
+            
             <div className="User">
-              <label htmlFor="name" >Full Name</label>
-              <Field type="text" id="name" name="name"  className="columnUser"/>
-              {errors.name && touched.name && (
-                <div>{errors.name}</div>
-              )}
+             
+              <input
+                id="image"
+                name="image"
+                className="drag"
+                type="file"
+                onChange={(event) => {
+                  if (event.currentTarget.files && event.currentTarget.files.length > 0) {
+                    setFieldValue("image", event.currentTarget.files[0]);
+                  }
+                }}
+              />
+             
+            </div>
+
+
+            <div className="User">
+              <label htmlFor="name" id="attribute">Full Name</label>
+              <Field type="text" id="name" name="name" className="columnUser" placeholder="Full Name"/>
+              {errors.name && touched.name && <div>{errors.name}</div>}
             </div>
 
             <div className="User">
-              <label htmlFor="email" >Email</label>
-              <Field type="email" id="email" name="email"  className="columnUser"/>
-              {errors.email && touched.email && (
-                <div>{errors.email}</div>
-              )}
-            </div >
+              <label htmlFor="email" id="attribute">Email</label>
+              <Field type="email" id="email" name="email" className="columnUser"    placeholder="Enter email"/>
+              {errors.email && touched.email && <div>{errors.email}</div>}
+            </div>
+
+            <div className="User">
+              <label htmlFor="role" id="attribute">Role</label>
+              <Field as="select" id="role" name="role" className="columnUser" placeholder="Select Role">
+                 <option value="admin">Admin</option>
+                <option value="responsable">responsable</option>
+                </Field>
+               {errors.role && touched.role && <div>{errors.role}</div>}
+            </div>
+
+
+            <div className="User">
+              <label htmlFor="phone" id="attribute">Phone Number</label>
+              <Field type="number" id="phone" name="phone" className="columnUser" placeholder="Enter user phone number"/>
+              {errors.phone && touched.phone && <div>{errors.phone}</div>}
+            </div>
 
            
 
-            <div className="User">
-              <label htmlFor="role">Role</label>
-              <Field type="text" id="role" name="role" className="columnUser" />
-              {errors.role && touched.role && (
-                <div>{errors.role}</div>
-              )}
-            </div>
-
-            <div className="User">
-              <label htmlFor="phone">Phone Number</label>
-              <Field type="number" id="phone" name="phone"  className="columnUser"/>
-              {errors.phone && touched.phone && (
-                <div>{errors.phone}</div>
-              )}
-            </div>
-
             <div className="btnUser">
-              <button type="button" onClick={onClose} id="cancel"  className="cancel">Discard</button>
-              <button type="submit" className='add'>Add User</button>
+              <button type="button" onClick={onClose} id="cancel" className="cancel">
+                Discard
+              </button>
+              <button type="submit" className="add">
+                Add User
+              </button>
             </div>
           </Form>
         )}

@@ -14,13 +14,13 @@ import Msglink from "../../Components/siginCommun/sigincommun";
 interface LoginFormValues {
   email: string;
   password: string;
-  rememberMe: boolean;
+ 
 }
 
 const initialValues: LoginFormValues = {
   email: "",
   password: "",
-  rememberMe: false,
+ 
 };
 
 const validationSchema = Yup.object({

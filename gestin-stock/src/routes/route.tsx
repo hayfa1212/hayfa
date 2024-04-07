@@ -17,6 +17,9 @@ import { Forgot } from "../pages/auth/forgotpass";
 import Addstore from "../pages/entrepot/ajoutEntrepot";
 import Consultentrepot from "../pages/entrepot/consulterEntrepot";
 
+import ConsultUsers from "../pages/users/test";
+
+
 // Importez le composant des détails du produit
 
 export default function AppRoutes() {
@@ -48,6 +51,8 @@ export default function AppRoutes() {
                     <Route path="/suppliers" element={<ConsulterFournisseur />} />
                     <Route path="/store" element={<Consultentrepot />} />
                     <Route path="/users" element={<ConsulterUsers />} />
+                    
+                    <Route path="/test" element={<ConsultUsers/>} />
                     <Route path="/product/:productId" element={<ProductDetails />} /> {/* Nouvelle route pour les détails du produit */}
                     <Route path="*" element={<Notfound />} />
                   </Routes>

@@ -1,6 +1,7 @@
 import React from "react";
 import notif from '../Assets/notification.png'
 import './search.css'
+import search from "../Assets/recherche.png"
 
 interface SearchInputProps {
     onSearch: (value: string) => void;
@@ -16,9 +17,11 @@ const SearchInput: React.FC<SearchInputProps> = ({ onSearch }) => {
             <input 
                 type="search"
              className="search"
-                placeholder="Search"
+                placeholder="Search product, supplier, order "
                 onChange={handleChange}
             />
+                
+           
             <img src={notif} className="notif"/>
         </div>
     );

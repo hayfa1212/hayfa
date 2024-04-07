@@ -15,6 +15,7 @@ interface Entrepot {
     location: string;
     Number: number;
     description: string;
+    image: string;
 }
 
 const PAGE_SIZE = 3;
@@ -26,8 +27,9 @@ const Consultentrepot: React.FC = () => {
     const [displayEntrepots, setDisplayEntrepots] = useState<Entrepot[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [deleteEntrepotId, setDeleteEntrepotId] = useState<number | null>(null);
+    const [editEntrepotId, setEditEntrepotId] = useState<number | null>(null); // Nouvel état pour l'ID de l'entrepôt en cours d'édition
+    const [editedEntrepot, setEditedEntrepot] = useState<Entrepot | null>(null); // Nouvel état pour stocker les informations de l'entrepôt en cours d'édition
     const navigate = useNavigate();
-
 
     useEffect(() => {
         const checkLoggedIn = async () => {
@@ -40,7 +42,6 @@ const Consultentrepot: React.FC = () => {
 
         checkLoggedIn();
     }, [navigate]);
-
 
     const fetchData = async () => {
         try {
@@ -138,12 +139,48 @@ const Consultentrepot: React.FC = () => {
         }
     };
 
+    const openEditModal = (entrepotId: number) => {
+        setEditEntrepotId(entrepotId);
+        const selectedEntrepot = entrepots.find(entrepot => entrepot.id === entrepotId);
+        setEditedEntrepot(selectedEntrepot || null);
+    };
+
+    const closeEditModal = () => {
+        setEditEntrepotId(null);
+        setEditedEntrepot(null);
+    };
+
+    const handleEditSubmit = async (editedValues: Entrepot) => {
+        try {
+            const { error } = await supabase
+                .from('entrepot')
+                .update({
+                    name: editedValues.name,
+                    location: editedValues.location,
+                    Number: editedValues.Number,
+                    description: editedValues.description,
+                })
+                .eq('id', editedValues.id);
+
+            if (!error) {
+                toast.success('Entrepot updated successfully');
+                closeEditModal();
+                fetchData(); // Actualiser les données après la mise à jour
+            } else {
+                toast.error('Error updating entrepot');
+            }
+        } catch (error) {
+            console.error('Error updating entrepot:', error);
+            toast.error('An error occurred while updating entrepot');
+        }
+    };
+
     return (
         <div className="home">
             <div>
                 <SearchInput onSearch={handleSearch} />
-                <div>
-                    <div className="headProd">
+                <div className="change">
+                    <div className="headstore">
                         <p className="titlehead">Entrepots</p>
                         <div className="buttons">
                             <button onClick={openAddEntrepotModal} className="btn" id="add"> Add entrepot</button>
@@ -151,26 +188,31 @@ const Consultentrepot: React.FC = () => {
                         </div>
                     </div>
                     <div>
-                        <p className="ligne"></p>
-                        
                         {getCurrentPageEntrepots().map(entrepot => (
-                            <div key={entrepot.id} >
-                                <div className="store">
+                            <div key={entrepot.id}  > 
                                 <div  className="storform">
-                                        <p>{entrepot.name}</p>
-                                        <p>{entrepot.location}</p>
-                                        <p>{entrepot.Number}</p>
-                                        <p>{entrepot.description}</p>
+                                  {entrepot.image ? (
+                                  <img src={entrepot.image} alt={entrepot.name} className="imgstore" />
+                                         ) : (
+                                    <div className="rectangle"></div>
+                                          )}
+                                       <div  className="formstore">
+                                       <div>
+                                        <p id="storename">{entrepot.name}</p>
+                                        <p id="info">{entrepot.location}</p>
+                                        <p id="info">{entrepot.Number}</p>
+                                        <p id="info">{entrepot.description}</p> 
+                                       </div>
+                                       <div className="decison">
+                                      <button className="btn" id="editstore"    onClick={() => openEditModal(entrepot.id)}>Edit</button> 
+                                      <img src={trach} className="trachs"    onClick={() => openDeleteConfirmationModal(entrepot.id)} />    
                                 </div>
-                                <div>
-                                    
-                                <img src={trach} className="trach" onClick={() => openDeleteConfirmationModal(entrepot.id)} />
-                                <button className="Edit">Edit</button>
+                              </div>
                                </div>
                             </div>
-                            <p className="ligne"></p>
-                              </div>
-                        ))}
+                                
+                             
+                    ))}
                       
                         <div className="pagination">
                             <button onClick={previousPage} disabled={currentPage === 1}>Previous</button>
@@ -183,6 +225,15 @@ const Consultentrepot: React.FC = () => {
             <Modal className="modal"
                 isOpen={deleteEntrepotId !== null}
                 onRequestClose={closeDeleteConfirmationModal}
+                style={{
+                    overlay: {
+                      backgroundColor: 'rgba(255, 255, 255, 0.7)' // Couleur de fond du modal
+                    },
+                    content: {
+                      backgroundColor: 'rgb(248, 245, 245)' // Couleur de fond du contenu du modal
+                     
+                    }
+                  }}
             >
                 <h2>Confirm Deletion</h2>
                 <p>Are you sure you want to delete this entrepot?</p>
@@ -192,10 +243,51 @@ const Consultentrepot: React.FC = () => {
                 </div>
             </Modal>
 
+            <Modal className="modale"
+              isOpen={editEntrepotId !== null}
+              onRequestClose={closeEditModal}
+              >
+              <p id="newUser">Edit Entrepot</p>
+              {editedEntrepot && (
+                 <Formik
+                    initialValues={editedEntrepot}
+                    onSubmit={handleEditSubmit}
+                     >
+                 {({ errors, touched }) => (
+                    <Form id="form">
+                        <div className="columns">
+                        <p>Name</p>
+                      <Field type="text" name="name"   className="columnUser"/>
+                      {errors.name && touched.name && <div>{errors.name}</div>}
+                      </div>
+                      <div className="columns"><p>Location</p>
+                      <Field type="text" name="location"   className="columnUser"/>
+                      {errors.location && touched.location && <div>{errors.location}</div>}
+                      </div>
+                      <div className="columns"><p>Number</p>
+                      <Field type="number" name="Number"   className="columnUser"/>
+                      {errors.Number && touched.Number && <div>{errors.Number}</div>}
+                      </div>
+                      <div className="columns"><p>Descreption</p>
+                      <Field type="text" name="description"  className="descrep" />
+                      {errors.description && touched.description && <div>{errors.description}</div>}
+                      </div>
+                      <div className="buttons">
+                        <button type="submit" className="add">Save</button>
+                        <button type="button" className="cancel" onClick={closeEditModal}>Cancel</button>
+                      </div>
+                  </Form>
+              )}
+           </Formik>
+    )}
+</Modal>
+
+
             <Addstore isOpen={isAddEntrepotModalOpen} onClose={closeAddEntrepotModal} />
 
             <ToastContainer/>
         </div>
     )
 }
+
 export default  Consultentrepot;

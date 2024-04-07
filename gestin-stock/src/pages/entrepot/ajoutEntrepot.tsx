@@ -2,14 +2,16 @@ import React from "react";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import supabase from "../../utils/api";
-import { toast } from "react-toastify";
-import "./ajoutEntrepot.css"
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import Modal from "react-modal";
 
 interface Store {
   name: string;
   location: string;
   number: number;
   description: string;
+  image: File | null; // Ajout du champ pour l'image
 }
 
 const initialValues: Store = {
@@ -17,6 +19,7 @@ const initialValues: Store = {
   location: "",
   number: 0,
   description: "",
+  image: null, // Initialiser à null
 };
 
 const validationSchema = Yup.object({
@@ -24,90 +27,170 @@ const validationSchema = Yup.object({
   location: Yup.string().required("Required"),
   number: Yup.number(),
   description: Yup.string(),
+  image: Yup.mixed().notRequired(), // Rendre l'ajout de l'image facultatif
 });
 
-interface AjoutentrepottProps {
+interface AddStoreProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const Addstore: React.FC<AjoutentrepottProps> = ({ isOpen, onClose }) => {
-  const handleLogin = async (values: Store) => {
+const AddStore: React.FC<AddStoreProps> = ({ isOpen, onClose }) => {
+  const handleSubmit = async (values: Store) => {
     try {
+      let imageUrl: string | null = null; // Définir imageUrl à null par défaut
+
+      // Vérifier si une image a été sélectionnée
+      if (values.image) {
+        // Envoi de l'image
+        const imageFile = values.image;
+        const fileName = `store-${Date.now()}-${imageFile?.name}`;
+
+        const { data: imageUploadData, error: imageUploadError } = await supabase.storage
+          .from("imagestore")
+          .upload(fileName, imageFile);
+
+        if (imageUploadError) {
+          throw new Error("Error uploading image");
+        }
+
+        // Récupération de l'URL de l'image téléchargée
+        const response = await supabase.storage.from("imagestore").getPublicUrl(fileName);
+        imageUrl = response.data.publicUrl;
+      }
+
+      // Enregistrement des autres informations dans la base de données avec l'URL de l'image si disponible
       const { data, error } = await supabase.from("entrepot").insert([
         {
           name: values.name,
           location: values.location,
           Number: values.number,
           description: values.description,
+          image: imageUrl, // Utilisation de l'URL de l'image si disponible, sinon null
         },
       ]);
+
       if (!error) {
-        toast.success('Success');
-        onClose(); // Ferme le modal après une soumission réussie
+        toast.success("Store added successfully!");
+        onClose(); // Fermer la modal après soumission réussie
       } else {
-        toast.error('Error occurred while adding store');
+        toast.error("Failed to add store");
       }
     } catch (error) {
-      console.error('Error occurred while adding store:', error);
-      toast.error('An error occurred while adding store');
+      console.error("Error adding store:", error);
+      toast.error("An error occurred while adding store");
     }
   };
 
   return (
     <>
       {isOpen && (
-        <div className="modal" >
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <Formik
-              initialValues={initialValues}
-              validationSchema={validationSchema}
-              onSubmit={(values) => handleLogin(values)}
-            >
-              {({ errors, touched }) => (
-                <Form>
-                  <div>
-                    <label htmlFor="name">Name</label>
-                    <Field type="text" id="name" name="name" />
-                    {errors.name && touched.name && <div>{errors.name}</div>}
-                  </div>
+        <Modal
+          isOpen={isOpen}
+          onRequestClose={onClose}
+          contentLabel="Add Store Modal"
+          style={{
+            content: {
+              width: "25rem",
+              height: "25rem",
+              marginLeft: "25rem",
+            },
+          }}
+        >
+          <Formik
+            initialValues={initialValues}
+            validationSchema={validationSchema}
+            onSubmit={(values) => handleSubmit(values)}
+          >
+            {({ errors, touched, setFieldValue }) => (
+              <Form className="form">
+                <p id="attribute">Add Store</p>
+                <div className="User">
+                  <label htmlFor="image">Image</label>
+                  <input
+                    id="image"
+                    name="image"
+                    type="file"
+                    accept="image/*"
+                    onChange={(event) => {
+                      if (event.currentTarget.files) {
+                        setFieldValue("image", event.currentTarget.files[0]);
+                      }
+                    }}
+                  />
+                  {errors.image && touched.image && (
+                    <div>{errors.image}</div>
+                  )}
+                </div>
+                <div className="User">
+                  <label htmlFor="name">Store Name</label>
+                  <Field
+                    type="text"
+                    id="name"
+                    name="name"
+                    className="columnUser"
+                    placeholder="Enter store name"
+                  />
+                  {errors.name && touched.name && <div>{errors.name}</div>}
+                </div>
 
-                  <div>
-                    <label htmlFor="location">Location</label>
-                    <Field type="text" id="location" name="location" />
-                    {errors.location && touched.location && (
-                      <div>{errors.location}</div>
-                    )}
-                  </div>
+                <div className="User">
+                  <label htmlFor="location">Location</label>
+                  <Field
+                    type="text"
+                    id="location"
+                    name="location"
+                    className="columnUser"
+                    placeholder="Enter store location"
+                  />
+                  {errors.location && touched.location && (
+                    <div>{errors.location}</div>
+                  )}
+                </div>
 
-                  <div>
-                    <label htmlFor="number">Number</label>
-                    <Field type="number" id="number" name="number" />
-                    {errors.number && touched.number && (
-                      <div>{errors.number}</div>
-                    )}
-                  </div>
+                <div className="User">
+                  <label htmlFor="number">Number</label>
+                  <Field
+                    type="number"
+                    id="number"
+                    name="number"
+                    className="columnUser"
+                    placeholder="Enter store number"
+                  />
+                  {errors.number && touched.number && (
+                    <div>{errors.number}</div>
+                  )}
+                </div>
 
-                  <div>
-                    <label htmlFor="description">Description</label>
-                    <Field type="text" id="description" name="description" />
-                    {errors.description && touched.description && (
-                      <div>{errors.description}</div>
-                    )}
-                  </div>
+                <div className="User">
+                  <label htmlFor="description">Description</label>
+                  <Field
+                    type="text"
+                    id="description"
+                    name="description"
+                    className="columnUser"
+                    placeholder="Enter store description"
+                  />
+                  {errors.description && touched.description && (
+                    <div>{errors.description}</div>
+                  )}
+                </div>
 
-                  <div className="modal-buttons">
-                    <button type="submit">Submit</button>
-                    <button type="button" onClick={onClose}>Cancel</button>
-                  </div>
-                </Form>
-              )}
-            </Formik>
-          </div>
-        </div>
+                <div className="btnUser">
+                  <button type="button" onClick={onClose} className="cancel">
+                    Cancel
+                  </button>
+                  <button type="submit" className="add">
+                    Add Store
+                  </button>
+                </div>
+              </Form>
+            )}
+          </Formik>
+        </Modal>
       )}
     </>
   );
 };
 
-export default Addstore;
+export default AddStore;
