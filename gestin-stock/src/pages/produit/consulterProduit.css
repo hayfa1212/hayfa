@@ -6,11 +6,68 @@ justify-content: space-around;
    
 }
 .change{
-    width: 67rem;
+   
     background-color:white;
-    margin-left: 1.5rem;
+    margin-left: 2rem;
     margin-top: 1rem;
     border-radius: 0.5rem;
+    margin-right: 1rem;
+  
+}
+.summary{
+
+    background-color:white;
+    margin-left: 2rem;
+    margin-top: 1rem;
+    justify-content: flex-start;
+    border-radius: 0.5rem;
+    height:11rem;
+    margin-right: 1rem;
+}
+.summ{
+    display: flex;
+    flex-direction: row;
+    gap: 6rem;
+}
+#inve{
+    display: flex;
+   
+    margin-top: 1rem;
+    margin-left: 1rem;
+    font-size:1.2rem ;
+    color: #383E49;
+    font-weight: 500;
+}
+.totale{
+    display: flex;
+    flex-direction: row;
+gap: 3rem;
+}
+.bar{
+    height:7rem ;
+    width:0.1rem;
+    background-color: #F0F1F3;
+}
+#categ{
+    color: #1570EF;
+    font-weight: 500;
+    margin-left: 1rem;
+}
+#totl{
+    color: #E19133;
+    font-weight:500;
+}
+#low{
+    color: #F36960;
+    font-weight:500;
+}
+.number{
+    color: #5D6679;
+    font-weight:500;
+}
+.note{
+    color: #858D9D;
+    font-size: 0.9rem;
 }
 
 .headProd{
@@ -27,35 +84,22 @@ justify-content: space-around;
 }
 
 .ligneProd{
-    display: flex;
-    flex-direction: row ;
-  justify-content: space-evenly ;
-   margin-left: 2rem;
-   margin-right: 0.5rem;
-   margin-bottom: -2rem;
+    
+  
    text-decoration: none; /* Supprimer le soulignement */
   color: inherit; 
   
 }
-.prodform{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
+
 
 .titleProd{
-    display: flex;
-    flex-direction: row ;
-   justify-content: space-evenly;
+ 
     color: #667085;
-    margin-left: -2rem;
+    text-decoration: none; /* Supprimer le soulignement */
+  
 }
 
-.ligne{
-    width: 66rem;
-    height: 0.03rem;
-    background-color: #F0F1F3;
-}
+
 .titlehead{
     font-size: 1.5rem;
 
@@ -113,4 +157,38 @@ justify-content: space-around;
 }
 .trach{
     margin-right: 1rem;
+}
+.productTable{
+    width: 65rem;
+    
+}
+.ligneproduit{
+  box-shadow: #383E49;
+  
+
+}
+
+
+
+.productTable {
+    border-collapse: collapse; /* Fusionner les bordures des cellules */
+    width: 100%; /* Largeur totale du tableau */
+}
+
+.productTable th,
+.productTable td {
+    border-bottom: 1px solid #e2e8f0; /* Bordure inférieure pour séparer les lignes */
+    padding: 8px; /* Remplissage des cellules */
+}
+
+.productTable td {
+    border-top: 1px solid #e2e8f0; /* Bordure supérieure pour créer une ligne entre les lignes */
+}
+
+.titleProd td {
+    font-weight: normal; /* Mettre en gras le texte dans les cellules de titre */
+    background-color: #f7fafc; /* Couleur de fond pour les cellules de titre */
+}
+.productTable tbody tr:hover {
+    background-color: #f0f4f8;
 }

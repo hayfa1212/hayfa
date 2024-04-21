@@ -34,9 +34,11 @@ export const Forgot: React.FC<{}> = () => {
                 
                     onSubmit= {async(values) => {
                     console.log('form submit', values)
-                    const forgetPassword = await supabase.auth.resetPasswordForEmail(values.email, 
- );
-                    if (!forgetPassword.error) {
+                    const forgetPassword = await supabase.auth.resetPasswordForEmail(values.email, {
+                        redirectTo: 'http://localhost:3000/Restpass',
+                      })
+                      
+                    if (forgetPassword) {
                         toast.success('check your email')
                      }}}
             >

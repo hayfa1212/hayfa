@@ -10,7 +10,7 @@ interface User {
   email: string;
   phone: number;
   role: string;
-  image: string; // Champ pour le chemin de l'image
+  image: string; 
 }
 
 interface EditUserModalProps {
@@ -31,7 +31,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
     email: Yup.string().email("Invalid email address").required("Email is required"),
     phone: Yup.number().typeError("Phone must be a number").required("Phone is required"),
     role: Yup.string().required("Role is required"),
-    image: Yup.string().required("Image is required"), // Validation du chemin de l'image
+    image: Yup.string().required("Image is required"), 
   });
 
   return (
@@ -45,7 +45,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
         initialValues={user}
         validationSchema={validationSchema}
         onSubmit={(values) => {
-          onUpdate({ ...values, image: values.image }); // Assurez-vous de transmettre la valeur de l'image également
+          onUpdate({ ...values, image: values.image }); 
         }}
       >
         <Form className="space">
@@ -66,10 +66,15 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
             <ErrorMessage name="phone" component="div" className="error" />
           </div>
           <div className="User">
-            <label htmlFor="role" id="attribute">Role:</label>
-            <Field type="text" id="role" name="role" className="columnUser" />
-            <ErrorMessage name="role" component="div" className="error" />
-          </div>
+              <label htmlFor="role" id="attribute">Role</label>
+              <Field as="select" id="role" name="role" className="columnUser" placeholder="Select Role">
+                <option value="">Select Role</option>
+                <option value="admin">Admin</option>
+                <option value="responsable stock">Responsable stock</option>
+                <option value="responsable logistique">Responsable logistique</option>
+              </Field>
+             
+            </div>
           <div className="User">
             
             <Field type="text" id="image" name="image" className="cach"/>

@@ -1,5 +1,6 @@
 .formroute{
     display: flex;
     flex-direction: row;
-    background-color: rgb(247, 247, 247);
+   
+    background-color: rgb(241, 241, 241);
 }

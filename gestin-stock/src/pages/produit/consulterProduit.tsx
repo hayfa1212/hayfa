@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom"; // Importer NavLink depuis react-router-dom
+import { NavLink, useNavigate } from "react-router-dom";
 import SearchInput from "../../searchBar";
 import supabase from "../../utils/api";
 import { ToastContainer, toast } from "react-toastify";
@@ -30,27 +30,44 @@ const Consulterprod: React.FC = () => {
     const [deleteProductId, setDeleteProductId] = useState<number | null>(null);
     const navigate = useNavigate();
 
-
     useEffect(() => {
         const checkLoggedIn = async () => {
-       
-const { data: { user } } = await supabase.auth.getUser()
-          if (!user) {
-            // Si l'utilisateur n'est pas connecté, redirigez-le vers la page de connexion
-            navigate("/");
-            toast.error('you should login')
-          }
-        };
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                navigate("/");
+                toast.error('You should login');
+            } else {
+                const { data: userData, error: userError } = await supabase
+                    .from("utilisateur")
+                    .select("role")
+                    .eq("email", user.email)
+                    .single();
     
+                if (userError) {
+                    console.error("Error fetching user data:", userError);
+                    toast.error("An error occurred while fetching user data");
+                } else {
+                    const userRole = userData?.role;
+                  
+    
+                    if (userRole) {
+                        console.log("User role:", userRole);
+                    } else {
+                        console.error("User role not found");
+                        toast.error("User role not found");
+                    }
+                }
+            }
+        };
         checkLoggedIn();
-      }, [navigate]);
+    }, [navigate]);
+    
 
-
-
-
+    useEffect(() => {
+        fetchData();
+    }, []);
 
     const fetchData = async () => {
-
         try {
             const { data, error } = await supabase
                 .from('product')
@@ -68,10 +85,6 @@ const { data: { user } } = await supabase.auth.getUser()
         }
     };
 
-    useEffect(() => {
-        fetchData();
-    }, []);
-
     const handleSearch = (value: string) => {
         setSearchTerm(value);
         filterProducts(value);
@@ -84,16 +97,60 @@ const { data: { user } } = await supabase.auth.getUser()
         setDisplayProducts(filtered);
     };
 
-    const openAddProductModal = () => {
-        setIsAddProductModalOpen(true);
+    const openAddProductModal = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+            const { data: userData, error: userError } = await supabase
+                .from("utilisateur")
+                .select("role")
+                .eq("email", user.email)
+                .single();
+
+            if (userError) {
+                console.error("Error fetching user data:", userError);
+                toast.error("An error occurred while fetching user data");
+            } else {
+                const userRole = userData?.role;
+                if (userRole === "responsable logistique") {
+                    toast.error("You do not have permission to add products");
+                } else {
+                    setIsAddProductModalOpen(true);
+                }
+            }
+        } else {
+            navigate("/");
+            toast.error('You should login');
+        }
     };
 
     const closeAddProductModal = () => {
         setIsAddProductModalOpen(false);
     };
 
-    const openDeleteConfirmationModal = (productId: number) => {
-        setDeleteProductId(productId);
+    const openDeleteConfirmationModal = async (productId: number) => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+            const { data: userData, error: userError } = await supabase
+                .from("utilisateur")
+                .select("role")
+                .eq("email", user.email)
+                .single();
+
+            if (userError) {
+                console.error("Error fetching user data:", userError);
+                toast.error("An error occurred while fetching user data");
+            } else {
+                const userRole = userData?.role;
+                if (userRole === "responsable logistique") {
+                    toast.error("You do not have permission to delete products");
+                } else {
+                    setDeleteProductId(productId);
+                }
+            }
+        } else {
+            navigate("/");
+            toast.error('You should login');
+        }
     };
 
     const closeDeleteConfirmationModal = () => {
@@ -102,25 +159,46 @@ const { data: { user } } = await supabase.auth.getUser()
 
     const deleteProduct = async () => {
         if (deleteProductId !== null) {
-            try {
-                const { error } = await supabase
-                    .from('product')
-                    .delete()
-                    .eq('id', deleteProductId);
-    
-                if (!error) {
-                    setProducts(prevProducts => prevProducts.filter(product => product.id !== deleteProductId));
-                    setDisplayProducts(prevProducts => prevProducts.filter(product => product.id !== deleteProductId));
-                    toast.success('Product deleted successfully');
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { data: userData, error: userError } = await supabase
+                    .from("utilisateur")
+                    .select("role")
+                    .eq("email", user.email)
+                    .single();
+
+                if (userError) {
+                    console.error("Error fetching user data:", userError);
+                    toast.error("An error occurred while fetching user data");
                 } else {
-                    toast.error('Error deleting product');
+                    const userRole = userData?.role;
+                    if (userRole === "responsable logistique") {
+                        toast.error("You do not have permission to delete products");
+                    } else {
+                        try {
+                            const { error } = await supabase
+                                .from('product')
+                                .delete()
+                                .eq('id', deleteProductId);
+
+                            if (!error) {
+                                setProducts(prevProducts => prevProducts.filter(product => product.id !== deleteProductId));
+                                setDisplayProducts(prevProducts => prevProducts.filter(product => product.id !== deleteProductId));
+                                toast.success('Product deleted successfully');
+                            } else {
+                                toast.error('Error deleting product');
+                            }
+                        } catch (error) {
+                            console.error('Error deleting product:');
+                            toast.error('An error occurred while deleting product');
+                        }
+                        closeDeleteConfirmationModal();
+                    }
                 }
-            } catch (error) {
-                console.error('Error deleting product:');
-                toast.error('An error occurred while deleting product');
+            } else {
+                navigate("/");
+                toast.error('You should login');
             }
-    
-            closeDeleteConfirmationModal();
         }
     };
 
@@ -146,10 +224,58 @@ const { data: { user } } = await supabase.auth.getUser()
         return Math.ceil(displayProducts.length / PAGE_SIZE);
     };
 
+    const getTotalProducts = () => {
+        return products.length;
+    };
+
+    const getTotalCategories = () => {
+        const uniqueCategories = Array.from(new Set(products.map(product => product.Category)));
+        return uniqueCategories.length;
+    };
+
+    const countOutOfStockProducts = () => {
+        return products.filter(product => product.availibilty === 'Out of stock').length;
+    };
+
+    const getTotalBuyingPrice = () => {
+        return products.reduce((total, product) => total + product.buying_price, 0);
+    };
+
     return (
         <div className="home">
             <div>
                 <SearchInput onSearch={handleSearch} />
+                <div className="summary">
+                    <p id="inve">Overall Inventory</p>
+                    <div className="summ">
+                        <div>
+                            <p id="categ"> Categories</p>
+                            <p className="number">{getTotalCategories()}</p>
+                            <p className="note">Last 7 days</p>
+                        </div>
+                        <p className="bar"></p>
+                        <div>
+                            <p  id="totl">Total Products</p>
+                            <div className="totale">
+                                <div>
+                            <p className="number">{getTotalProducts()}</p>
+                            <p className="note">Last 7 days</p>
+                            </div>
+                            <div>
+                            <p className="number">{getTotalBuyingPrice()}</p>
+                            <p className="note">Revenue</p>
+                            </div>
+                            <p></p>
+                            </div>
+                        </div>
+                        <p className="bar"></p>
+                        <div>
+                            <p id="low">Low Stocks</p>
+                            <p className="number">{countOutOfStockProducts()}</p>
+                            <p className="note">Not in stock</p>
+                        </div>
+                    </div>
+                </div>
                 <div className="change">
                     <div className="headProd">
                         <p className="titlehead">Products</p>
@@ -160,33 +286,46 @@ const { data: { user } } = await supabase.auth.getUser()
                         </div>
                     </div>
                     <div>
-                        <div className="titleProd">
-                            <p>Products</p>
-                            <p>Buynig Price</p>
-                            <p>Quantity</p>
-                            <p>Thershold values</p>
-                            <p>expiry data</p>
-                            <p>Availability</p>
-                            <p>Action</p>
-                        </div>
-                        <p className="ligne"></p>
-                        {getCurrentPageProducts().map(product => (
-                            <div key={product.id} >
-                                <div  className="prodform">
-                                <NavLink to={`/product/${product.id}`} className="ligneProd"  >
-                                    <p>{product.product_Name}</p>
-                                    </NavLink>
-                                    <p>{product.buying_price}</p>
-                                    <p>{product.quantity}</p>
-                                    <p>{product.thershold}</p>
-                                    <p>{product.expire}</p>
-                                    <p style={{ color: product.availibilty === 'in-stock' ? '#10A760' : 'red' }}>{product.availibilty}</p>
+                        <table className="productTable">
+                            <thead>
+                                <tr className="titleProd">
+                                    <td>Products</td>
+                                    <td>Buying Price</td>
+                                    <td>Quantity</td>
+                                    <td>Thershold values</td>
+                                    <td>Expiry data</td>
+                                    <td>Availability</td>
+                                    <td>Action</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {getCurrentPageProducts().map(product => (
                                     
-                                    <img src={trach} className="trach" onClick={() => openDeleteConfirmationModal(product.id)} />
-                                </div>
-                                <p className="ligne"></p>
-                            </div>
-                        ))}
+                                    <tr key={product.id} className="ligneproduit">
+                                       
+                                        <td>
+                                            <NavLink to={`/product/${product.id}`} className="ligneProd">
+                                                {product.product_Name}
+                                            </NavLink>
+                                        </td>
+                                        <td>{product.buying_price}</td>
+                                        <td>{product.quantity}</td>
+                                        <td>{product.thershold}</td>
+                                        <td>{product.expire}</td>
+                                        <td style={{ color: product.availibilty === 'in-stock' ? '#10A760' : 'red' }}>
+                                            {product.availibilty}
+                                        </td>
+                                        <td>
+                                            <img src={trach} className="trach" onClick={() => openDeleteConfirmationModal(product.id)} />
+                                        </td>
+                                      
+                                    </tr>
+                                    
+                                ))}
+                               
+                            </tbody>
+                          
+                        </table>
                         <div className="pagination">
                             <button onClick={previousPage} disabled={currentPage === 1}>Previous</button>
                             <span>Page {currentPage} of {getTotalPages()}</span>
@@ -198,17 +337,23 @@ const { data: { user } } = await supabase.auth.getUser()
             <Modal className="modal"
                 isOpen={deleteProductId !== null}
                 onRequestClose={closeDeleteConfirmationModal}
+                style={{
+                    overlay: {
+                      backgroundColor: 'rgba(255, 255, 255, 0.7)' 
+                    },
+                    content: {
+                      backgroundColor: 'rgb(248, 245, 245)' 
+                    }
+                  }}
             >
                 <h2>Confirm Deletion</h2>
                 <p>Are you sure you want to delete this product?</p>
                 <div className="desecion">
-                <button onClick={closeDeleteConfirmationModal} className="canc">Cancel</button>
-                <button onClick={deleteProduct} className="del">Delete</button>
+                    <button onClick={closeDeleteConfirmationModal} className="canc">Cancel</button>
+                    <button onClick={deleteProduct} className="del">Delete</button>
                 </div>
             </Modal>
-
             <Ajoutproduit isOpen={isAddProductModalOpen} onClose={closeAddProductModal} />
-
             <ToastContainer/>
         </div>
     )

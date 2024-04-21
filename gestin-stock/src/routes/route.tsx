@@ -18,6 +18,10 @@ import Addstore from "../pages/entrepot/ajoutEntrepot";
 import Consultentrepot from "../pages/entrepot/consulterEntrepot";
 
 import ConsultUsers from "../pages/users/test";
+import ConsulterCommande from "../pages/order/suivieorders";
+import ChartComponent from "../pages/BI/graph";
+import OrderDetails from "../pages/order/singleOrder";
+
 
 
 // Importez le composant des détails du produit
@@ -47,21 +51,29 @@ export default function AppRoutes() {
                 <Sidebar />
                 <div>
                   <Routes>
+                 
                     <Route path="/inventory" element={<Consulterprod />} />
                     <Route path="/suppliers" element={<ConsulterFournisseur />} />
                     <Route path="/store" element={<Consultentrepot />} />
                     <Route path="/users" element={<ConsulterUsers />} />
-                    
+                    <Route path="/orders" element={<ConsulterCommande/>} />
+                    <Route path="/orders/:orderId" element={<OrderDetails/>} />
+                    <Route path="*" element={<Notfound />} />
+                    <Route path="/graph" element={<ChartComponent/>} />
                     <Route path="/test" element={<ConsultUsers/>} />
                     <Route path="/product/:productId" element={<ProductDetails />} /> {/* Nouvelle route pour les détails du produit */}
-                    <Route path="*" element={<Notfound />} />
+                    
                   </Routes>
                 </div>
+                
               </div>
+             
             </React.Fragment>
           }
+          
         />
       </Routes>
+      
     </Router>
   );
 }

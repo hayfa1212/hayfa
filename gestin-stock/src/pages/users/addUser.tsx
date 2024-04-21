@@ -79,7 +79,14 @@ const imageUrl = response.data.publicUrl;
           throw insertError;
         }
       }
+      const { error: authError } = await supabase.auth.signUp({
+        email: values.email,
+        password: "your_default_password_here", // You can set a default password for new users
+      });
 
+      if (authError) {
+        throw authError;
+      }
       toast.success("User added successfully!");
       onClose();
     } catch (error) {
@@ -137,7 +144,8 @@ const imageUrl = response.data.publicUrl;
               <label htmlFor="role" id="attribute">Role</label>
               <Field as="select" id="role" name="role" className="columnUser" placeholder="Select Role">
                  <option value="admin">Admin</option>
-                <option value="responsable">responsable</option>
+                <option value="responsable stock">responsable stock</option>
+                <option value="responsable logistique">responsable logistique</option>
                 </Field>
                {errors.role && touched.role && <div>{errors.role}</div>}
             </div>

@@ -23,3 +23,35 @@
   flex-direction: row;
   gap: 0.5rem;
 }
+
+
+
+.user-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.user-table th,
+.user-table td {
+  border-bottom: 1px solid #e2e8f0;
+  padding: 8px;
+}
+
+.user-table td {
+  border-top: 1px solid #e2e8f0;
+}
+
+.table-header th {
+  font-weight: normal;
+  background-color: #f7fafc;
+}
+
+.separator-row td {
+  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  padding: 0;
+  height: 2px;
+}
+.user-table tbody tr:hover {
+  background-color: #f0f4f8;
+}

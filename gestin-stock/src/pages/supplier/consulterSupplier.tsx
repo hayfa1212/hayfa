@@ -164,34 +164,39 @@ const ConsulterFournisseur: React.FC = () => {
                         </div>
                     </div>
                     <div>
-                        <div className="titleSup">
-                            
-                                <p id="sus">Supplier Name</p>
-                                <p id="sus">Product</p>
-                                <p id="sus">Contact Number</p>
-                                <p id="sus">Email</p>
-                                <p id="sus">Type</p>
-                                <p id="sus">On the way</p>
-                                <p id="sus">Action</p>
-                          
-                        </div>
-                        {suppliers.map(supplier => (
-                            <div key={supplier.id} className="supplier-container">
-                                <div className="lignesuuolier">
-                                    <p id="su">{supplier.name}</p>
-                                    <p id="su">{supplier.product}</p>
-                                    <p id="su">{supplier.contact}</p>
-                                    <p id="su">{supplier.email}</p>
-                                    <p id="su">{supplier.type}</p>
-                                    <p id="su">{supplier.onTheWay}</p>
-                                    <div id="su">
-                                        <img src={editIcon} alt="Edit" className="trach" onClick={() => openEditSupplierModal(supplier)} />
-                                        <img src={trash} alt="Delete" className="trach" onClick={() => openDeleteConfirmationModal(supplier.id)} />
-                                    </div>
-                                </div>
-                                <p className="ligne"></p>
-                            </div>
-                        ))}
+                      
+                        <div>
+                   <table className="supplier-table">
+                   <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Product</th>
+                      <th>Contact Number</th>
+                      <th>Email</th>
+                      <th>Type</th>
+                      <th>On the Way</th>
+                      <th>Action</th>
+                    </tr>
+                    </thead>
+               <tbody>
+                 {suppliers.map(supplier => (
+                     <tr key={supplier.id}>
+                       <td>{supplier.name}</td>
+                        <td>{supplier.product}</td>
+                        <td>{supplier.contact}</td>
+                        <td>{supplier.email}</td>
+                        <td>{supplier.type}</td>
+                       <td>{supplier.onTheWay}</td>
+                      <td>
+                        <img src={editIcon} alt="Edit" className="trach" onClick={() => openEditSupplierModal(supplier)} />
+                        <img src={trash} alt="Delete" className="trach" onClick={() => openDeleteConfirmationModal(supplier.id)} />
+                      </td>
+                  </tr>
+                ))}
+             </tbody>
+           </table>
+         </div>
+
                     </div>
                 </div>
                 <div className="pagination">

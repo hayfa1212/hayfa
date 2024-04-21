@@ -48,12 +48,12 @@ const initialValues: Product = {
 
 const validationSchema = Yup.object({
   name: Yup.string().required("Required"),
-  id: Yup.number().required("Required"),
+  id: Yup.number().typeError("you should put numbre").required("Required"),
   category: Yup.string().required("Required"),
-  quantity: Yup.number(),
+  quantity: Yup.number().typeError("you should put numbre"),
   unit: Yup.string(),
   expire: Yup.date(),
-  thershold: Yup.number(),
+  thershold: Yup.number().typeError("you should put numbre"),
 });
 
 interface AjoutproduitProps {
@@ -132,7 +132,7 @@ const Ajoutproduit: React.FC<AjoutproduitProps> = ({ isOpen, onClose }) => {
       }
     } catch (error) {
       console.error(error);
-      toast.error('Error adding product.');
+      toast.error(' product exist.');
     }
   };
 
@@ -167,7 +167,7 @@ const Ajoutproduit: React.FC<AjoutproduitProps> = ({ isOpen, onClose }) => {
               </div>
               <div className="column">
                 <label htmlFor='id' id="attribute">Product ID</label>
-                <Field type='number' id='id' name='id' className="columnUser" placeholder="Enter Product Name" />
+                <Field type='float' id='id' name='id' className="columnUser" placeholder="Enter Product Name" />
                 <ErrorMessage name="id" component="div" className="error" />
               </div>
               <div className="column">
@@ -177,12 +177,12 @@ const Ajoutproduit: React.FC<AjoutproduitProps> = ({ isOpen, onClose }) => {
               </div>
               <div className="column">
                 <label htmlFor='price'> Buying Price</label>
-                <Field type='number' id='price' name='price' className="columnUser" placeholder="Enter Buying Price" />
+                <Field type='float' id='price' name='price' className="columnUser" placeholder="Enter Buying Price" />
                 <ErrorMessage name="price" component="div" className="error" />
               </div>
               <div className="column">
                 <label htmlFor='quantity'>Quantity</label>
-                <Field type='number' id='quantity' name='quantity'className="columnUser"  placeholder="ENter Product quantity" onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                <Field type='float' id='quantity' name='quantity'className="columnUser"  placeholder="ENter Product quantity" onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   const { value } = e.target;
                   setFieldValue('quantity', value);
                   setFieldValue('availability', parseInt(value) > 0 ? "In stock" : "Out of stock");

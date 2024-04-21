@@ -48,12 +48,6 @@ const { data: { user } } = await supabase.auth.getUser()
         checkLoggedIn();
       }, [navigate]);
 
-
-
-
-
-
-
   const fetchUsers = async () => {
     try {
       const { data, error } = await supabase.from("utilisateur").select();
@@ -82,9 +76,8 @@ const { data: { user } } = await supabase.auth.getUser()
   const filterUsers = (searchTerm: string) => {
     const filtered = users.filter(
       (user) =>
-        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.role.toLowerCase().includes(searchTerm.toLowerCase())
+        user.name.toLowerCase().includes(searchTerm.toLowerCase()) 
+       
     );
     setDisplayUsers(filtered);
   };
@@ -112,6 +105,7 @@ const { data: { user } } = await supabase.auth.getUser()
           .from("utilisateur")
           .delete()
           .eq("id", deleteUserId);
+          
 
         if (!error) {
           setUsers((prevUsers) =>
@@ -210,40 +204,50 @@ const { data: { user } } = await supabase.auth.getUser()
             </div>
           </div>
           <div>
-            <div className="titleUser">
-              <p>Full Name</p>
-              <p>Email</p>
-              <p>Phone Number</p>
-              <p>Role</p>
-              <p>Action</p>
-            </div>
-            {getCurrentPageUsers().map((user) => (
-              <div key={user.id}>
-                <div className="ligneuser">
-                <div className="fullname">
-                <img src={user.image} alt={user.name} className="user-image" />
-                  <p>{user.name}</p>
-                  </div>
-                  <p>{user.email}</p>
-                  <p>{user.phone}</p>
-                  <p style={{ color: user.role === 'admin' ? '#10A760' : '#F79009' }}>{user.role}</p>
+            
+            <table className="user-table">
+  <thead>
+    <tr className="table-header">
+      <th>Full Name</th>
+      <th>Email</th>
+      <th>Phone</th>
+      <th>Role</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {getCurrentPageUsers().map((user) => (
+      <tr key={user.id}>
+        <td>
+          <div className="fullname">
+            <img src={user.image} alt={user.name} className="user-image" />
+            <p>{user.name}</p>
+          </div>
+        </td>
+        <td>{user.email}</td>
+        <td>{user.phone}</td>
+        <td style={{ color: user.role === 'admin' ? '#10A760' : '#F79009' }}>{user.role}</td>
+        <td>
+          <div>
+            <img
+              src={edit}
+              className="trach"
+              onClick={() => openEditModal(user)}
+              alt="Edit"
+            />
+            <img
+              src={trach}
+              className="action-icon"
+              onClick={() => openDeleteConfirmationModal(user.id)}
+              alt="Delete"
+            />
+          </div>
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
 
-                  <div>
-                    <img
-                      src={edit}
-                      className="trach"
-                      onClick={() => openEditModal(user)}
-                    />
-                    <img
-                      src={trach}
-                      className="trach"
-                      onClick={() => openDeleteConfirmationModal(user.id)}
-                    />
-                  </div>
-                </div>
-                <p className="ligne"></p>
-              </div>
-            ))}
             <div className="pagination">
               <button onClick={previousPage} disabled={currentPage === 1}>
                 Previous

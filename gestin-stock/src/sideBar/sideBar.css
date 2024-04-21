@@ -2,11 +2,11 @@
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  gap: 10rem;
+
   color: grey;
-  width: 15rem; 
+  width: 17rem; 
   background-color: white;
-  border-radius: 1rem 1rem 0 0;
+  border-radius: 0.3rem 0.3rem 0 0;
   box-shadow: 1rem gray;
 
 }
@@ -15,8 +15,6 @@
   color: inherit; /* Utiliser la couleur par défaut du texte */
 }
 
-
-
 .dis{
   width: 7rem;
 }
@@ -24,7 +22,7 @@
 .link{
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2rem;
  
 }
 #space{
@@ -51,4 +49,9 @@
   margin-left: 2rem;
   justify-content: center;
 
+}
+.Place{
+  display: flex;
+  justify-content: flex-start;
+  gap: 1rem;
 }

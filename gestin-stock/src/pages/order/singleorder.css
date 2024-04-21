@@ -1,0 +1,17 @@
+.detailsprod{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+.infoorder{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.Order{
+margin-right: 4rem;
+}
+.detailproduct{
+    margin-left: 2rem;
+}

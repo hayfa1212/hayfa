@@ -12,15 +12,7 @@
     flex-direction: row;
     justify-content: space-around;
 }
-.lignesuuolier {
-    display: flex;
-    flex-direction: row;
-justify-content: space-evenly;
- font-size: 0.8rem;
-    font-weight: 500;
-    color: #48505E;
-    margin-left: 1rem;
-}
+
 #su{
     margin-left: 1rem;
     
@@ -28,4 +20,30 @@ justify-content: space-evenly;
 #sus{
     margin-right: 1rem;
     
+}
+
+
+.supplier-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.supplier-table th,
+.supplier-table td {
+    border-bottom: 1px solid #e2e8f0;
+    padding: 12px;
+    text-align: left;
+}
+
+.supplier-table th {
+    background-color: #f7fafc;
+    font-weight: bold;
+}
+
+.supplier-table tbody tr:hover {
+    background-color: #f0f4f8;
+}
+
+.trach {
+    cursor: pointer;
 }
