@@ -108,7 +108,7 @@ const AjoutCommande: React.FC<AjoutCommandeProps> = ({ isOpen, onClose }) => {
             price: values.buyingPrice,
             quantity: values.quantity,
             unit: values.unit,
-            orderValue: values.orderValue,
+            orderValue: values.buyingPrice * values.quantity,
             dateDelivery: values.dateDelivery,
             type:values.type,
             status:values.stauts,
@@ -129,7 +129,8 @@ const AjoutCommande: React.FC<AjoutCommandeProps> = ({ isOpen, onClose }) => {
   
 
   return (
-    <Modal  isOpen={isOpen} onRequestClose={onClose} ariaHideApp={false}  style={{content: {width: '25rem', height: '30rem', marginLeft: '25rem'}}}>
+  
+       <Modal  isOpen={isOpen} onRequestClose={onClose} ariaHideApp={false}  style={{content: {width: '25rem', height: '30rem', marginLeft: '25rem'}}}>
       <div>
         <Formik
           initialValues={initialValues}
@@ -206,6 +207,8 @@ const AjoutCommande: React.FC<AjoutCommandeProps> = ({ isOpen, onClose }) => {
         </Formik>
       </div>
     </Modal>
+    
+   
   );
 };
 

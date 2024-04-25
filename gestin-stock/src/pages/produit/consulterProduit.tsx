@@ -5,8 +5,9 @@ import supabase from "../../utils/api";
 import { ToastContainer, toast } from "react-toastify";
 import Ajoutproduit from '../../pages/produit/ajoutProduit';
 import './consulterProduit.css';
-import trach from '../../Assets/Trash.svg'
-import Modal from "react-modal";
+import trach from '../../Assets/Trash.svg';
+import Swal from "sweetalert2";
+import ProductRating from "../../pages/reat";
 
 interface Product {
     id: number;
@@ -27,9 +28,8 @@ const Consulterprod: React.FC = () => {
     const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
     const [displayProducts, setDisplayProducts] = useState<Product[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const [deleteProductId, setDeleteProductId] = useState<number | null>(null);
     const navigate = useNavigate();
-
+    
     useEffect(() => {
         const checkLoggedIn = async () => {
             const { data: { user } } = await supabase.auth.getUser();
@@ -48,11 +48,7 @@ const Consulterprod: React.FC = () => {
                     toast.error("An error occurred while fetching user data");
                 } else {
                     const userRole = userData?.role;
-                  
-    
-                    if (userRole) {
-                        console.log("User role:", userRole);
-                    } else {
+                    if (!userRole) {
                         console.error("User role not found");
                         toast.error("User role not found");
                     }
@@ -80,7 +76,7 @@ const Consulterprod: React.FC = () => {
                 toast.error('Error fetching products');
             }
         } catch (error) {
-            console.error('Error fetching products:');
+            console.error('Error fetching products:', error);
             toast.error('An error occurred while fetching products');
         }
     };
@@ -97,108 +93,47 @@ const Consulterprod: React.FC = () => {
         setDisplayProducts(filtered);
     };
 
-    const openAddProductModal = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-            const { data: userData, error: userError } = await supabase
-                .from("utilisateur")
-                .select("role")
-                .eq("email", user.email)
-                .single();
-
-            if (userError) {
-                console.error("Error fetching user data:", userError);
-                toast.error("An error occurred while fetching user data");
-            } else {
-                const userRole = userData?.role;
-                if (userRole === "responsable logistique") {
-                    toast.error("You do not have permission to add products");
-                } else {
-                    setIsAddProductModalOpen(true);
-                }
-            }
-        } else {
-            navigate("/");
-            toast.error('You should login');
-        }
+    const openAddProductModal = () => {
+        setIsAddProductModalOpen(true);
     };
 
     const closeAddProductModal = () => {
         setIsAddProductModalOpen(false);
     };
 
-    const openDeleteConfirmationModal = async (productId: number) => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-            const { data: userData, error: userError } = await supabase
-                .from("utilisateur")
-                .select("role")
-                .eq("email", user.email)
-                .single();
-
-            if (userError) {
-                console.error("Error fetching user data:", userError);
-                toast.error("An error occurred while fetching user data");
-            } else {
-                const userRole = userData?.role;
-                if (userRole === "responsable logistique") {
-                    toast.error("You do not have permission to delete products");
-                } else {
-                    setDeleteProductId(productId);
-                }
+    const openDeleteConfirmationModal = (productId: number) => {
+        Swal.fire({
+            title: "Confirm Deletion",
+            text: "Are you sure you want to delete this product?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                deleteProduct(productId);
             }
-        } else {
-            navigate("/");
-            toast.error('You should login');
-        }
+        });
     };
 
-    const closeDeleteConfirmationModal = () => {
-        setDeleteProductId(null);
-    };
+    const deleteProduct = async (productId: number) => {
+        try {
+            const { error } = await supabase
+                .from('product')
+                .delete()
+                .eq('id', productId);
 
-    const deleteProduct = async () => {
-        if (deleteProductId !== null) {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                const { data: userData, error: userError } = await supabase
-                    .from("utilisateur")
-                    .select("role")
-                    .eq("email", user.email)
-                    .single();
-
-                if (userError) {
-                    console.error("Error fetching user data:", userError);
-                    toast.error("An error occurred while fetching user data");
-                } else {
-                    const userRole = userData?.role;
-                    if (userRole === "responsable logistique") {
-                        toast.error("You do not have permission to delete products");
-                    } else {
-                        try {
-                            const { error } = await supabase
-                                .from('product')
-                                .delete()
-                                .eq('id', deleteProductId);
-
-                            if (!error) {
-                                setProducts(prevProducts => prevProducts.filter(product => product.id !== deleteProductId));
-                                setDisplayProducts(prevProducts => prevProducts.filter(product => product.id !== deleteProductId));
-                                toast.success('Product deleted successfully');
-                            } else {
-                                toast.error('Error deleting product');
-                            }
-                        } catch (error) {
-                            console.error('Error deleting product:');
-                            toast.error('An error occurred while deleting product');
-                        }
-                        closeDeleteConfirmationModal();
-                    }
-                }
+            if (!error) {
+                setProducts(prevProducts => prevProducts.filter(product => product.id !== productId));
+                setDisplayProducts(prevProducts => prevProducts.filter(product => product.id !== productId));
+                toast.success('Product deleted successfully');
             } else {
-                navigate("/");
-                toast.error('You should login');
+                toast.error('Error deleting product');
             }
+        } catch (error) {
+            console.error('Error deleting product:', error);
+            toast.error('An error occurred while deleting product');
         }
     };
 
@@ -258,14 +193,14 @@ const Consulterprod: React.FC = () => {
                             <p  id="totl">Total Products</p>
                             <div className="totale">
                                 <div>
-                            <p className="number">{getTotalProducts()}</p>
-                            <p className="note">Last 7 days</p>
-                            </div>
-                            <div>
-                            <p className="number">{getTotalBuyingPrice()}</p>
-                            <p className="note">Revenue</p>
-                            </div>
-                            <p></p>
+                                    <p className="number">{getTotalProducts()}</p>
+                                    <p className="note">Last 7 days</p>
+                                </div>
+                                <div>
+                                    <p className="number">{getTotalBuyingPrice()}</p>
+                                    <p className="note">Revenue</p>
+                                </div>
+                                <p></p>
                             </div>
                         </div>
                         <p className="bar"></p>
@@ -296,13 +231,12 @@ const Consulterprod: React.FC = () => {
                                     <td>Expiry data</td>
                                     <td>Availability</td>
                                     <td>Action</td>
+                                    <td>Rate</td>
                                 </tr>
                             </thead>
                             <tbody>
                                 {getCurrentPageProducts().map(product => (
-                                    
                                     <tr key={product.id} className="ligneproduit">
-                                       
                                         <td>
                                             <NavLink to={`/product/${product.id}`} className="ligneProd">
                                                 {product.product_Name}
@@ -318,13 +252,10 @@ const Consulterprod: React.FC = () => {
                                         <td>
                                             <img src={trach} className="trach" onClick={() => openDeleteConfirmationModal(product.id)} />
                                         </td>
-                                      
+                                        <td><ProductRating productId={product.id} /></td>
                                     </tr>
-                                    
                                 ))}
-                               
                             </tbody>
-                          
                         </table>
                         <div className="pagination">
                             <button onClick={previousPage} disabled={currentPage === 1}>Previous</button>
@@ -334,25 +265,6 @@ const Consulterprod: React.FC = () => {
                     </div>
                 </div>
             </div>
-            <Modal className="modal"
-                isOpen={deleteProductId !== null}
-                onRequestClose={closeDeleteConfirmationModal}
-                style={{
-                    overlay: {
-                      backgroundColor: 'rgba(255, 255, 255, 0.7)' 
-                    },
-                    content: {
-                      backgroundColor: 'rgb(248, 245, 245)' 
-                    }
-                  }}
-            >
-                <h2>Confirm Deletion</h2>
-                <p>Are you sure you want to delete this product?</p>
-                <div className="desecion">
-                    <button onClick={closeDeleteConfirmationModal} className="canc">Cancel</button>
-                    <button onClick={deleteProduct} className="del">Delete</button>
-                </div>
-            </Modal>
             <Ajoutproduit isOpen={isAddProductModalOpen} onClose={closeAddProductModal} />
             <ToastContainer/>
         </div>

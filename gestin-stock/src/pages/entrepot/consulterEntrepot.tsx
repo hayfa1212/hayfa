@@ -3,11 +3,12 @@ import { NavLink, useNavigate } from "react-router-dom";
 import SearchInput from "../../searchBar";
 import supabase from "../../utils/api";
 import { ToastContainer, toast } from "react-toastify";
-import trach from '../../Assets/Trash.svg'
+import trash from '../../Assets/Trash.svg';
 import Modal from "react-modal";
 import { Formik, Form, Field } from "formik";
-import './consulterStore.css'
+import './consulterStore.css';
 import Addstore from "./ajoutEntrepot";
+import Swal from 'sweetalert2';
 
 interface Entrepot {
     id: number;
@@ -26,9 +27,8 @@ const Consultentrepot: React.FC = () => {
     const [isAddEntrepotModalOpen, setIsAddEntrepotModalOpen] = useState(false);
     const [displayEntrepots, setDisplayEntrepots] = useState<Entrepot[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const [deleteEntrepotId, setDeleteEntrepotId] = useState<number | null>(null);
-    const [editEntrepotId, setEditEntrepotId] = useState<number | null>(null); // Nouvel état pour l'ID de l'entrepôt en cours d'édition
-    const [editedEntrepot, setEditedEntrepot] = useState<Entrepot | null>(null); // Nouvel état pour stocker les informations de l'entrepôt en cours d'édition
+    const [editEntrepotId, setEditEntrepotId] = useState<number | null>(null);
+    const [editedEntrepot, setEditedEntrepot] = useState<Entrepot | null>(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -108,34 +108,38 @@ const Consultentrepot: React.FC = () => {
     };
 
     const openDeleteConfirmationModal = (entrepotId: number) => {
-        setDeleteEntrepotId(entrepotId);
-    };
-
-    const closeDeleteConfirmationModal = () => {
-        setDeleteEntrepotId(null);
-    };
-
-    const deleteEntrepot = async () => {
-        if (deleteEntrepotId !== null) {
-            try {
-                const { error } = await supabase
-                    .from('entrepot')
-                    .delete()
-                    .eq('id', deleteEntrepotId);
-
-                if (!error) {
-                    setEntrepots(prevEntrepots => prevEntrepots.filter(entrepot => entrepot.id !== deleteEntrepotId));
-                    setDisplayEntrepots(prevEntrepots => prevEntrepots.filter(entrepot => entrepot.id !== deleteEntrepotId));
-                    toast.success('Entrepot deleted successfully');
-                } else {
-                    toast.error('Error deleting entrepot');
-                }
-            } catch (error) {
-                console.error('Error deleting entrepot:', error);
-                toast.error('An error occurred while deleting entrepot');
+        Swal.fire({
+            title: 'Confirm Deletion',
+            text: 'Are you sure you want to delete this entrepot?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                deleteEntrepot(entrepotId);
             }
+        });
+    };
 
-            closeDeleteConfirmationModal();
+    const deleteEntrepot = async (entrepotId: number) => {
+        try {
+            const { error } = await supabase
+                .from('entrepot')
+                .delete()
+                .eq('id', entrepotId);
+
+            if (!error) {
+                setEntrepots(prevEntrepots => prevEntrepots.filter(entrepot => entrepot.id !== entrepotId));
+                setDisplayEntrepots(prevEntrepots => prevEntrepots.filter(entrepot => entrepot.id !== entrepotId));
+                toast.success('Entrepot deleted successfully');
+            } else {
+                toast.error('Error deleting entrepot');
+            }
+        } catch (error) {
+            console.error('Error deleting entrepot:', error);
+            toast.error('An error occurred while deleting entrepot');
         }
     };
 
@@ -165,7 +169,7 @@ const Consultentrepot: React.FC = () => {
             if (!error) {
                 toast.success('Entrepot updated successfully');
                 closeEditModal();
-                fetchData(); // Actualiser les données après la mise à jour
+                fetchData(); // Refresh data after update
             } else {
                 toast.error('Error updating entrepot');
             }
@@ -205,7 +209,7 @@ const Consultentrepot: React.FC = () => {
                                        </div>
                                        <div className="decison">
                                       <button className="btn" id="editstore"    onClick={() => openEditModal(entrepot.id)}>Edit</button> 
-                                      <img src={trach} className="trachs"    onClick={() => openDeleteConfirmationModal(entrepot.id)} />    
+                                      <img src={trash} className="trachs"    onClick={() => openDeleteConfirmationModal(entrepot.id)} />    
                                 </div>
                               </div>
                                </div>
@@ -222,66 +226,6 @@ const Consultentrepot: React.FC = () => {
                     </div>
                 </div>
             </div>
-            <Modal className="modal"
-                isOpen={deleteEntrepotId !== null}
-                onRequestClose={closeDeleteConfirmationModal}
-                style={{
-                    overlay: {
-                      backgroundColor: 'rgba(255, 255, 255, 0.7)' // Couleur de fond du modal
-                    },
-                    content: {
-                      backgroundColor: 'rgb(248, 245, 245)' // Couleur de fond du contenu du modal
-                     
-                    }
-                  }}
-            >
-                <h2>Confirm Deletion</h2>
-                <p>Are you sure you want to delete this entrepot?</p>
-                <div className="desecion">
-                    <button onClick={closeDeleteConfirmationModal} className="canc">Cancel</button>
-                    <button onClick={deleteEntrepot} className="del">Delete</button>
-                </div>
-            </Modal>
-
-            <Modal className="modale"
-              isOpen={editEntrepotId !== null}
-              onRequestClose={closeEditModal}
-              >
-              <p id="newUser">Edit Entrepot</p>
-              {editedEntrepot && (
-                 <Formik
-                    initialValues={editedEntrepot}
-                    onSubmit={handleEditSubmit}
-                     >
-                 {({ errors, touched }) => (
-                    <Form id="form">
-                        <div className="columns">
-                        <p>Name</p>
-                      <Field type="text" name="name"   className="columnUser"/>
-                      {errors.name && touched.name && <div>{errors.name}</div>}
-                      </div>
-                      <div className="columns"><p>Location</p>
-                      <Field type="text" name="location"   className="columnUser"/>
-                      {errors.location && touched.location && <div>{errors.location}</div>}
-                      </div>
-                      <div className="columns"><p>Number</p>
-                      <Field type="number" name="Number"   className="columnUser"/>
-                      {errors.Number && touched.Number && <div>{errors.Number}</div>}
-                      </div>
-                      <div className="columns"><p>Descreption</p>
-                      <Field type="text" name="description"  className="descrep" />
-                      {errors.description && touched.description && <div>{errors.description}</div>}
-                      </div>
-                      <div className="buttons">
-                        <button type="submit" className="add">Save</button>
-                        <button type="button" className="cancel" onClick={closeEditModal}>Cancel</button>
-                      </div>
-                  </Form>
-              )}
-           </Formik>
-    )}
-</Modal>
-
 
             <Addstore isOpen={isAddEntrepotModalOpen} onClose={closeAddEntrepotModal} />
 
@@ -290,4 +234,4 @@ const Consultentrepot: React.FC = () => {
     )
 }
 
-export default  Consultentrepot;
+export default Consultentrepot;

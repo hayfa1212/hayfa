@@ -12,7 +12,6 @@ const productSchema = Yup.object().shape({
   status: Yup.string(),
 });
 
-
 interface Product {
   id: number;
   product_Name: string;
@@ -57,7 +56,7 @@ const OrderDetails: React.FC = () => {
   const [supplier, setSupplier] = useState<Supplier | null>(null);
   const [warehouse, setWarehouse] = useState<Warehouse | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [editedOrder, setEditedOrder] = useState<Commande | {}>({});
+  const [editedOrder, setEditedOrder] = useState<Commande | null>(null);
   const [allSuppliers, setAllSuppliers] = useState<Supplier[]>([]);
   const [errors, setErrors] = useState<any>({});
 
@@ -73,6 +72,7 @@ const OrderDetails: React.FC = () => {
 
         if (!error && data && data.length > 0) {
           setCommande(data[0]);
+          setEditedOrder(data[0]);
         } else {
           console.error("Commande not found");
         }
@@ -96,7 +96,6 @@ const OrderDetails: React.FC = () => {
 
         if (!error && data && data.length > 0) {
           setProduct(data[0]);
-          setEditedOrder(data[0]);
         } else {
           console.error("Product not found");
         }
@@ -155,51 +154,53 @@ const OrderDetails: React.FC = () => {
   };
 
   const handleSaveClick = async () => {
-  setIsEditing(false);
-  try {
-    // Validate the edited order using the productSchema
-    await productSchema.validate(editedOrder as Commande, { abortEarly: false });
-    
-    // Update the commande data in the database
-    const { error } = await supabase
-      .from("commande")
-      .update({
-        quantity: (editedOrder as Commande).quantity,
-        price: (editedOrder as Commande).price,
-        status: (editedOrder as Commande).status,
-      })
-      .eq("id", commande?.id);
-
-    // Check for errors during the update operation
-    if (!error) {
-      console.log("Commande updated successfully");
-      toast.success('updated successfully')
-      // Update the local state with the edited status
-      if (commande) {
-        setCommande((prevCommande) => ({
-          ...prevCommande!,
+    setIsEditing(false);
+    try {
+      // Validate the edited order using the productSchema
+      await productSchema.validate(editedOrder as Commande, { abortEarly: false });
+      
+      // Update the commande data in the database
+      const { error } = await supabase
+        .from("commande")
+        .update({
+          quantity: (editedOrder as Commande).quantity,
+          price: (editedOrder as Commande).price,
           status: (editedOrder as Commande).status,
-        }));
+        })
+        .eq("id", commande?.id);
+
+      // Check for errors during the update operation
+      if (!error) {
+        console.log("Commande updated successfully");
+        toast.success('updated successfully')
+        // Update the local state with the edited status
+        if (commande) {
+          setCommande((prevCommande) => ({
+            ...prevCommande!,
+            quantity: (editedOrder as Commande).quantity,
+            price: (editedOrder as Commande).price,
+            status: (editedOrder as Commande).status,
+          }));
+        }
+      } else {
+        console.error("Error updating commande:", error.message);
       }
-    } else {
-      console.error("Error updating commande:", error.message);
+    } catch (error) {
+      console.error("Validation error:", error);
+      if (error instanceof Yup.ValidationError) {
+        const newErrors: Record<string, string> = {}; // Typage explicite
+        error.inner.forEach((err) => {
+          // Process validation errors if needed
+        });
+        setErrors(newErrors);
+      }
     }
-  } catch (error) {
-    console.error("Validation error:", error);
-    if (error instanceof Yup.ValidationError) {
-      const newErrors: Record<string, string> = {}; // Typage explicite
-      error.inner.forEach((err) => {
-        // Process validation errors if needed
-      });
-      setErrors(newErrors);
-    }
-  }
-};
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setEditedOrder((prevOrder) => ({
-      ...prevOrder,
+      ...prevOrder!,
       [name]: name === "quantity" ? parseInt(value, 10) : value,
     }));
   };
@@ -211,7 +212,7 @@ const OrderDetails: React.FC = () => {
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
     setEditedOrder((prevOrder) => ({
-      ...prevOrder,
+      ...prevOrder!,
       [name]: value,
     }));
   };
@@ -297,7 +298,7 @@ const OrderDetails: React.FC = () => {
                 <div className="columns">
                   <p id="titre">Quantity: </p>
                   {isEditing ? (
-                    <input type="text" id="valeur" name="quantity" value={(editedOrder as Commande).quantity} onChange={handleInputChange} />
+                    <input type="text" id="valeur" name="quantity" value={(editedOrder as Commande)?.quantity || ''} onChange={handleInputChange} />
                   ) : (
                     <p id="valeur">{commande.quantity}</p>
                   )}
@@ -309,11 +310,11 @@ const OrderDetails: React.FC = () => {
                       <input
                         type="text"
                         id="valeur"
-                        name="buyingPrice"
-                        value={(editedOrder as Commande).price}
+                        name="price"
+                        value={(editedOrder as Commande)?.price || ''}
                         onChange={handleInputChange}
                       />
-                      {errors.buyingPrice && <div className="error">{errors.buyingPrice}</div>}
+                      {errors.price && <div className="error">{errors.price}</div>}
                     </div>
                   ) : (
                     <p id="valeur">{commande.price}</p>
@@ -322,24 +323,23 @@ const OrderDetails: React.FC = () => {
                 <div className="columns">
                   <p id="titre">Status:</p>
                   {isEditing ? (
-                     <select
-                     id="valeur"
-                     name="status"
-                     value={(editedOrder as Commande).status}
-                     onChange={handleSelectChange} // Utilisez la fonction handleSelectChange pour les sélecteurs
-                   >
-                     <option value="Delayed" >Delayed</option>
-                     <option value="Returned">Returned</option>
-                     <option value="Confirmed" >Confirmed</option>
-                   </select>
+                    <select
+                      id="valeur"
+                      name="status"
+                      value={(editedOrder as Commande)?.status || ''}
+                      onChange={handleSelectChange}
+                    >
+                      <option value="Delayed">Delayed</option>
+                      <option value="Returned">Returned</option>
+                      <option value="Confirmed">Confirmed</option>
+                    </select>
                   ) : (
                     <p
-                    id="valeur"
-                    style={{ color: commande.status === 'Confirmed' ? '#1366D9' : (commande.status === 'Delayed' ? '#F79009' : '') }}
-                  >
-                    {commande.status}
-                  </p>
-                  
+                      id="valeur"
+                      style={{ color: commande.status === 'Confirmed' ? '#1366D9' : (commande.status === 'Delayed' ? '#F79009' : '') }}
+                    >
+                      {commande.status}
+                    </p>
                   )}
                 </div>
                 <ToastContainer/>

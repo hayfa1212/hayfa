@@ -6,6 +6,7 @@ import './consulterSupplier.css'
 import '../produit/consulterProduit.css';
 import trash from '../../Assets/Trash.svg'
 import editIcon from '../../Assets/edition.png'
+import Swal from 'sweetalert2';
 
 import Modal from "react-modal";
 import AddSupplier from "../../pages/supplier/ajoutSupplier";
@@ -90,16 +91,16 @@ const ConsulterFournisseur: React.FC = () => {
         setDeleteSupplierId(null);
     };
 
-    const deleteSupplier = async () => {
-        if (deleteSupplierId !== null) {
+    const deleteSupplier = async (id: number) => {
+        if (id !== null) {
             try {
                 const { error } = await supabase
                     .from('supplier')
                     .delete()
-                    .eq('id', deleteSupplierId);
+                    .eq('id', id);
 
                 if (!error) {
-                    const updatedSuppliers = suppliers.filter(supplier => supplier.id !== deleteSupplierId);
+                    const updatedSuppliers = suppliers.filter(supplier => supplier.id !== id);
                     setSuppliers(updatedSuppliers);
                     toast.success('Supplier deleted successfully');
                 } else {
@@ -189,7 +190,21 @@ const ConsulterFournisseur: React.FC = () => {
                        <td>{supplier.onTheWay}</td>
                       <td>
                         <img src={editIcon} alt="Edit" className="trach" onClick={() => openEditSupplierModal(supplier)} />
-                        <img src={trash} alt="Delete" className="trach" onClick={() => openDeleteConfirmationModal(supplier.id)} />
+                        <img src={trash} alt="Delete" className="trach" onClick={() => {
+                            Swal.fire({
+                                title: "Are you sure?",
+                                text: "You won't be able to revert this!",
+                                icon: "warning",
+                                showCancelButton: true,
+                                confirmButtonColor: "#3085d6",
+                                cancelButtonColor: "#d33",
+                                confirmButtonText: "Yes, delete it!"
+                              }).then((result) => {
+                                if (result.isConfirmed) {
+                                    deleteSupplier(supplier.id);
+                                }
+                            });
+                        }} />
                       </td>
                   </tr>
                 ))}
@@ -205,105 +220,6 @@ const ConsulterFournisseur: React.FC = () => {
                     <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage === Math.ceil(suppliers.length / itemsPerPage)}>Next</button>
                 </div>
             </div>
-
-            <Modal
-                className="modal"
-                isOpen={deleteSupplierId !== null}
-                onRequestClose={closeDeleteConfirmationModal}
-                style={{
-                    overlay: {
-                      backgroundColor: 'rgba(255, 255, 255, 0.7)' // Couleur de fond du modal
-                    },
-                    content: {
-                      backgroundColor: 'rgb(248, 245, 245)' // Couleur de fond du contenu du modal
-                     
-                    }
-                  }}
-            >
-                <h2>Confirm Deletion</h2>
-                <p>Are you sure you want to delete this supplier?</p>
-                <div className="decision">
-                    <button onClick={closeDeleteConfirmationModal} className="canc">Cancel</button>
-                    <button onClick={deleteSupplier} className="del">Delete</button>
-                </div>
-            </Modal>
-
-            <Modal
-                className="modal"
-                style={{ overlay: { backgroundColor: 'rgba(0, 0, 0, 0.5)' }, content: { backgroundColor: 'white', width: '25rem', height: '35rem', marginTop:"2rem" } }}
-                isOpen={editSupplier !== null}
-                onRequestClose={closeEditSupplierModal}
-            >
-                <p id="newUser">Edit Supplier</p>
-                {editSupplier && (
-                    <form  className="form" onSubmit={(e) => {
-                        e.preventDefault();
-                        updateSupplier(editSupplier);
-                    }}> 
-                    <div className="column">
-                        <label>Name:</label>
-                        <input
-                        className="columnUser"
-                            type="text"
-                            value={editSupplier.name}
-                            onChange={(e) => setEditSupplier(prevState => ({ ...prevState!, name: e.target.value }))}
-                        />
-                       </div>
-                       <div className="column">
-                        <label>Product:</label>
-                        <input
-                        className="columnUser"
-                            type="text"
-                            value={editSupplier.product}
-                            onChange={(e) => setEditSupplier(prevState => ({ ...prevState!, product: e.target.value }))}
-                        />
-                        </div >
-                        <div className="column">
-                        <label>Contact:</label>
-                        <input
-                        className="columnUser"
-                            type="number"
-                            value={editSupplier.contact}
-                            onChange={(e) => setEditSupplier(prevState => ({ ...prevState!, contact: parseInt(e.target.value, 10) }))}
-                        />
-                        </div>
-                        <div className="column">
-                        <label>Email:</label>
-                        <input
-                        className="columnUser"
-                            type="email"
-                            value={editSupplier.email}
-                            onChange={(e) => setEditSupplier(prevState => ({ ...prevState!, email: e.target.value }))}
-                        />
-                        </div>
-                        <div className="column">
-                        <label>Type:</label>
-                        <select
-                        className="columnUser"
-                            value={editSupplier.type}
-                            onChange={(e) => setEditSupplier(prevState => ({ ...prevState!, type: e.target.value }))}
-                        >
-                            <option value="">Select Type</option>
-                            <option value="Take Return">Take Return</option>
-                            <option value="Not Take Return">Not Take Return</option>
-                        </select>
-                        </div>
-                        <div className="column">
-                        <label>On the Way:</label>
-                        <input
-                        className="columnUser"
-                            type="text"
-                            value={editSupplier.onTheWay}
-                            onChange={(e) => setEditSupplier(prevState => ({ ...prevState!, onTheWay: e.target.value }))}
-                        />
-                        </div>
-                        <div className='buttons'>
-                            <button onClick={closeEditSupplierModal} className="canc">Cancel</button>
-                            <button type="submit" className="del" style={{ backgroundColor: 'blue', color: 'white' }}>Update</button>
-                        </div>
-                    </form>
-                )}
-            </Modal>
 
             <AddSupplier isOpen={isAddSupplierModalOpen} onClose={closeAddSupplierModal} />
 

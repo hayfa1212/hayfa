@@ -1,146 +1,114 @@
-import React, { useEffect, useRef, useState } from 'react';
-import Chart, { ChartOptions } from 'chart.js/auto';
+import React, { useEffect, useState, useRef } from 'react';
+import Chart from 'chart.js/auto'; // Importez Chart.js
 import supabase from '../../utils/api';
 
-const fetchCommandData = async (selectedProduct = '') => {
-  try {
-    let { data: commandData, error } = await supabase.from('commande').select('*');
+interface Product {
+  product: string; // Assurez-vous que cela correspond au nom de la colonne dans votre base de données
+  quantity: number;
+}
 
-    if (error) {
-      throw new Error('Failed to fetch data');
-    }
+const ProductTable: React.FC = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const chartRef = useRef<HTMLCanvasElement>(null); // Référence à l'élément canvas pour le graphique
+  const chartInstance = useRef<Chart<"pie", number[], string> | null>(null); // Référence au graphique actuel
 
-    // Vérifier si commandData est null avant de filtrer
-    if (commandData) {
-      // Filtrer les données en fonction du produit sélectionné
-      if (selectedProduct) {
-        commandData = commandData.filter(item => item.product === selectedProduct);
+  useEffect(() => {
+    async function fetchProducts() {
+      const { data, error } = await supabase.from('commande').select('product, quantity');
+
+      if (error) {
+        console.error('Error fetching products:', error.message);
+        return;
       }
 
-      return commandData.map((item: any) => ({
-        month: item.dateDelivery.slice(0, 7),
-        type: item.type,
-        buyingPrice: item.price * item.quantity
-      }));
-    } else {
-      return [];
-    }
-  } catch (error) {
-    console.error('Error fetching command data:', error);
-    return [];
-  }
-};
+      // Calculate total quantity for each product
+      const productMap = new Map<string, number>();
+      data.forEach((item: Product) => {
+        if (productMap.has(item.product)) {
+          productMap.set(item.product, productMap.get(item.product)! + item.quantity);
+        } else {
+          productMap.set(item.product, item.quantity);
+        }
+      });
 
-const fetchProducts = async () => {
-  try {
-    const { data: products, error } = await supabase.from('commande').select('product');
-    console.log(products)
-    if (error) {
-      throw new Error('Failed to fetch products');
-     
-    }
-    return products.map((product: any) => product.name);
-   
-  } catch (error) {
-    console.error('Error fetching products:', error);
-    return [];
-  }
-};
+      // Sort products by total quantity in descending order
+      const sortedProducts = Array.from(productMap.entries()).sort((a, b) => b[1] - a[1]);
 
+      // Take the top 3 products
+      const topProducts = sortedProducts.slice(0, 4).map(([product, quantity]) => ({ product, quantity }));
 
-const ChartComponent: React.FC = () => {
-  const chartRef = useRef<HTMLCanvasElement>(null);
-  const [commandData, setCommandData] = useState<{ month: string, type: string, buyingPrice: number }[]>([]);
-  const [selectedProduct, setSelectedProduct] = useState<string>(''); // État pour stocker le produit sélectionné
-  const [products, setProducts] = useState<string[]>([]);
+      setProducts(topProducts);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = await fetchCommandData(selectedProduct); // Utiliser le produit sélectionné dans la requête
-      setCommandData(data);
-    };
+      // Destroy the existing chart if there is one
+      if (chartInstance.current) {
+        chartInstance.current.destroy();
+      }
 
-    fetchData();
-  }, [selectedProduct]); // Mettre à jour les données lorsque le produit sélectionné change
-
-  useEffect(() => {
-    // Récupérer la liste des produits
-    fetchProducts().then(products => {
-      setProducts(products);
-    });
-  }, []); // Récupérer la liste des produits au chargement initial uniquement
-
-  useEffect(() => {
-    if (chartRef && chartRef.current && commandData.length > 0) {
-      const ctx = chartRef.current.getContext('2d');
-      if (ctx) {
-        const monthlyData: { [month: string]: { [type: string]: number } } = {};
-
-        commandData.forEach(item => {
-          if (!monthlyData[item.month]) {
-            monthlyData[item.month] = {};
-          }
-
-          if (!monthlyData[item.month][item.type]) {
-            monthlyData[item.month][item.type] = 0;
-          }
-
-          monthlyData[item.month][item.type] += item.buyingPrice;
-        });
-
-        const labels = Object.keys(monthlyData).sort(); // Tri des mois
-        const datasets = Object.keys(monthlyData[labels[0]]).map(type => ({
-          label: `Total Prix d'Achat pour Commandes ${type}`,
-          data: labels.map(month => monthlyData[month][type] || 0),
-          backgroundColor: type === 'Client' ? 'rgba(255, 99, 132, 0.2)' : 'rgba(54, 162, 235, 0.2)',
-          borderColor: type === 'Client' ? 'rgba(255, 99, 132, 1)' : 'rgba(54, 162, 235, 1)',
-          borderWidth: 1
-        }));
-
-        const options: ChartOptions<'bar'> = {
-          scales: {
-            y: {
-              type: 'linear',
-              ticks: {}
+      // Create the pie chart once data is loaded
+      if (chartRef.current) {
+        const ctx = chartRef.current.getContext('2d');
+        if (ctx) {
+          chartInstance.current = new Chart(ctx, {
+            type: 'pie',
+            data: {
+              labels: topProducts.map(product => product.product),
+              datasets: [{
+                label: 'Total Quantity',
+                data: topProducts.map(product => product.quantity),
+                backgroundColor: [
+                  'rgba(255, 99, 132, 0.8)', // Rouge avec opacité plus élevée
+              'rgba(54, 162, 235, 0.8)', // Bleu avec opacité plus élevée
+              'rgba(255, 206, 86, 0.8)', // Jaune avec opacité plus élevée
+              'rgba(75, 192, 192, 0.8)' 
+                ],
+                borderColor: [
+                  'rgba(255, 99, 132, 1)',
+              'rgba(54, 162, 235, 1)',
+              'rgba(255, 206, 86, 1)',
+              'rgba(75, 192, 192, 1)'
+                ],
+                borderWidth: 1
+              }]
+            },
+            options: {
+              scales: {
+                y: {
+                  beginAtZero: true
+                }
+              }
             }
-          }
-        };
-
-        const myChart = new Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels: labels,
-            datasets: datasets
-          },
-          options: options
-        });
-
-        return () => {
-          myChart.destroy();
-        };
+          });
+        }
       }
     }
-  }, [commandData]);
 
-  const handleProductSelect = (product: string) => {
-    setSelectedProduct(product);
-  };
+    fetchProducts();
+  }, []);
 
   return (
-    <div style={{ width: '800px', height: '600px' }}>
-      {/* Bouton de sélection du produit */}
-      <div>
-        <select onChange={(e) => handleProductSelect(e.target.value)}>
-          <option value="">Tous les produits</option>
+    <div>
+      <table>
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Quantity</th>
+          </tr>
+        </thead>
+        <tbody>
           {products.map((product, index) => (
-            <option key={index} value={product}>{product}</option>
+            <tr key={index}>
+              <td>{product.product}</td>
+              <td>{product.quantity}</td>
+            </tr>
           ))}
-        </select>
+        </tbody>
+      </table>
+      
+      <div style={{ width: '400px', height: '400px' }}>
+        <canvas ref={chartRef} style={{ width: '100%', height: '100%' }} />
       </div>
-
-      <canvas ref={chartRef} style={{ width: '100%', height: '100%' }} />
     </div>
   );
 };
 
-export default ChartComponent;
+export default ProductTable;

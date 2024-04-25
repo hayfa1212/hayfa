@@ -4,9 +4,9 @@ import SearchInput from "../../searchBar";
 import supabase from "../../utils/api";
 import { ToastContainer, toast } from "react-toastify";
 import AjoutCommande from "../order/creeorder";
-import Modal from "react-modal";
-import "./suivieorder.css";
+import './suivieorder.css';
 import trash from '../../Assets/Trash.svg';
+import Swal from 'sweetalert2';
 
 interface Commande {
     id: number;
@@ -94,20 +94,28 @@ const ConsulterCommande: React.FC = () => {
     };
 
     const openDeleteConfirmationModal = (id: number) => {
-        setDeleteCommandId(id);
+        Swal.fire({
+            title: 'Confirm Deletion',
+            text: 'Are you sure you want to delete this command?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                deleteCommande(id);
+            }
+        });
     };
 
-    const closeDeleteConfirmationModal = () => {
-        setDeleteCommandId(null);
-    };
-
-    const deleteCommande = async () => {
-        if (deleteCommandId !== null) {
+    const deleteCommande = async (id: number) => {
+        if (id !== null) {
             try {
                 await supabase
                     .from('commande')
                     .delete()
-                    .eq('id', deleteCommandId);
+                    .eq('id', id);
 
                 toast.success('Commande supprimée avec succès');
                 fetchData();
@@ -115,7 +123,6 @@ const ConsulterCommande: React.FC = () => {
                 console.error('Erreur lors de la suppression de la commande :', error);
                 toast.error('Une erreur est survenue lors de la suppression de la commande');
             }
-            closeDeleteConfirmationModal();
         }
     };
 
@@ -220,30 +227,6 @@ const ConsulterCommande: React.FC = () => {
                     </div>
                 </div>
             </div>
-            <Modal
-             isOpen={deleteCommandId !== null}
-             onRequestClose={closeDeleteConfirmationModal}
-             style={{
-             overlay: {
-              backgroundColor: 'rgba(255, 255, 255, 0.7)'
-            },
-            content: {
-              backgroundColor: 'rgb(248, 245, 245)',
-              width: '20rem', // Définir la largeur de la fenêtre modale à 50% de la taille de l'écran
-              height: '12rem', // Hauteur automatique pour s'adapter au contenu
-              margin: 'auto', // Centrer horizontalement
-              top: '25%' // Centrer verticalement à 25% du haut de la fenêtre
-              }
-            }}
-          >
-          <h2>Confirm Deletion</h2>
-       <p>Are you sure you want to delete this command?</p>
-       <div className="desecion">
-          <button onClick={closeDeleteConfirmationModal} className="canc">Cancel</button>
-          <button onClick={deleteCommande} className="del">Delete</button>
-       </div>
-      </Modal>
-
             <AjoutCommande isOpen={isAddOrderModalOpen} onClose={closeAddOrderModal} />
             <ToastContainer/>
         </div>
