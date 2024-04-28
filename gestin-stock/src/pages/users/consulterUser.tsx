@@ -18,6 +18,7 @@ interface User {
   email: string;
   phone: number;
   role: string;
+  
   image: string;
 }
 
@@ -277,7 +278,7 @@ const ConsulterUsers: React.FC = () => {
           onUpdate={updateUser}
         />
       )}
-      <Adduser isOpen={isAddUserModalOpen} onClose={closeAddUserModal} />$
+      <Adduser isOpen={isAddUserModalOpen} onClose={closeAddUserModal} />
       
       <ToastContainer />
     </div>

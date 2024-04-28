@@ -1,0 +1,21 @@
+.graph{
+    background-color: white;
+    border-radius: 0.4rem;
+    width: 21rem;
+
+}
+.spinner {
+    border-radius: 9999px; /* Pour obtenir une forme ronde */
+    border-top: 2px solid #3b82f6; /* Bleu Tailwind */
+    border-bottom: 8px solid #3b82f6; /* Bleu Tailwind */
+    width: 20px; /* Largeur Tailwind */
+    height: 20px; /* Hauteur Tailwind */
+    animation: spin 1s linear infinite; /* Animation Tailwind */
+  }
+  
+  @keyframes spin {
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  

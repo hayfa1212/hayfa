@@ -11,6 +11,7 @@ interface Store {
   location: string;
   number: number;
   description: string;
+  capacite:number;
   image: File | null; // Ajout du champ pour l'image
 }
 
@@ -19,6 +20,7 @@ const initialValues: Store = {
   location: "",
   number: 0,
   description: "",
+  capacite:0,
   image: null, // Initialiser à null
 };
 
@@ -27,6 +29,7 @@ const validationSchema = Yup.object({
   location: Yup.string().required("Required"),
   number: Yup.number(),
   description: Yup.string(),
+  capacite:Yup.number(),
   image: Yup.mixed().notRequired(), // Rendre l'ajout de l'image facultatif
 });
 
@@ -66,6 +69,7 @@ const AddStore: React.FC<AddStoreProps> = ({ isOpen, onClose }) => {
           location: values.location,
           Number: values.number,
           description: values.description,
+          capacite:values.capacite,
           image: imageUrl, // Utilisation de l'URL de l'image si disponible, sinon null
         },
       ]);
@@ -156,6 +160,19 @@ const AddStore: React.FC<AddStoreProps> = ({ isOpen, onClose }) => {
                     name="number"
                     className="columnUser"
                     placeholder="Enter store number"
+                  />
+                  {errors.number && touched.number && (
+                    <div>{errors.number}</div>
+                  )}
+                </div>
+                <div className="User">
+                  <label htmlFor="number">Capacite</label>
+                  <Field
+                    type="number"
+                    id="capacite"
+                    name="capacite"
+                    className="columnUser"
+                    placeholder="Enter store capacite"
                   />
                   {errors.number && touched.number && (
                     <div>{errors.number}</div>

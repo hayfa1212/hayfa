@@ -1,8 +1,10 @@
 .search{
     width: 17rem;
-    height: 2.2rem;
+    height: 2.5rem;
     margin-top: 2rem;
-   margin-left: 3rem;    
+   margin-left: 3rem; 
+   border: 1px solid #ccc; 
+   border-radius: 0.2rem;
 }
 .notif{
     width:  1.5rem;
@@ -22,3 +24,4 @@ margin-top: -2rem;
 border-radius: 0.1rem;
 
 }
+

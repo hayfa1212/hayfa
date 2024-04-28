@@ -1,0 +1,30 @@
+.sum{
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    width: 63.4rem;
+  margin-left: 2rem;
+  border-radius: 0.5rem;
+  margin-top: 1rem;
+}
+.info-general{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+.value{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+.return{
+    color: #845EBC;
+    font-weight: 500;
+    margin-right: 5rem;
+}
+.low{
+    margin-right: 4rem;
+}
+.totale{
+    margin-right: 4rem;
+}

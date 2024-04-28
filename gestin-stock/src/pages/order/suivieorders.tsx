@@ -7,6 +7,7 @@ import AjoutCommande from "../order/creeorder";
 import './suivieorder.css';
 import trash from '../../Assets/Trash.svg';
 import Swal from 'sweetalert2';
+import OrdersCounter from "./summary";
 
 interface Commande {
     id: number;
@@ -20,7 +21,7 @@ interface Commande {
     status: string;
 }
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 6;
 
 const ConsulterCommande: React.FC = () => {
     const [commandes, setCommandes] = useState<Commande[]>([]);
@@ -150,20 +151,35 @@ const ConsulterCommande: React.FC = () => {
     const disableEditStatus = () => {
         setEditedCommandeId(null);
     };
+    const downloadAllCommande = () => {
+        // Generate CSV content
+        const csvContent = "data:text/csv;charset=utf-8," + 
+            commandes.map(commandes => [commandes.product,commandes.orderValue,commandes.quantity,commandes.dateDelivery,commandes.status].join(",")).join("\n");
+        // Create link element
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "commandes.csv");
+        document.body.appendChild(link);
+        // Simulate click
+        link.click();
+    };
 
     return (
         <div className="home">
             <div>
                 <SearchInput onSearch={handleSearch} />
+                <OrdersCounter/>
                 <div className="change">
                     <div className="headProd">
                         <p className="titlehead">Orders</p>
                         <div className="buttons">
                             <button onClick={openAddOrderModal} className="btn" id="add"> Add order</button>
                             <button className="btn">Filters</button>
-                            <button className="btn">Download all</button>
+                            <button className="btn" onClick={downloadAllCommande}>Download all</button>
                         </div>
                     </div>
+
                     <div>
                         <table className="commandes-table">
                             <thead>

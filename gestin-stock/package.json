@@ -23,6 +23,7 @@
     "chartjs-adapter-date-fns": "^3.0.0",
     "chartjs-plugin-datalabels": "^2.2.0",
     "formik": "^2.4.5",
+    "jspdf": "^2.5.1",
     "postcss-cli": "^11.0.0",
     "react": "^18.2.0",
     "react-apexcharts": "^1.4.1",

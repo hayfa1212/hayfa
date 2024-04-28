@@ -52,10 +52,12 @@ gap: 3rem;
     color: #1570EF;
     font-weight: 500;
     margin-left: 1rem;
+
 }
 #totl{
     color: #E19133;
     font-weight:500;
+    margin-right: 6rem;
 }
 #low{
     color: #F36960;
@@ -113,8 +115,13 @@ gap: 3rem;
   border-radius: 0.2rem;
 }
 #add{
-    background-color: #1366D9;
+    background-color: #3498db;
     color: white;
+    border: none;
+}
+#add:hover{
+    background-color: #2980b9;
+    cursor: pointer;
 }
 .space{
     display: flex;
@@ -191,4 +198,8 @@ gap: 3rem;
 }
 .productTable tbody tr:hover {
     background-color: #f0f4f8;
+}
+.dele{
+    background-color: transparent;
+    border: none;
 }

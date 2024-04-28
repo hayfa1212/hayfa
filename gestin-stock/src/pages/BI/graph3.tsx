@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import supabase from '../../utils/api';
+import './graph3.css'
 
 const CommandesLivreesParMois: React.FC = () => {
   const [commandes, setCommandes] = useState<any[]>([]);
@@ -46,6 +47,7 @@ const CommandesLivreesParMois: React.FC = () => {
         totalParMois[mois].confirmed++;
       }
     });
+    
 
     return totalParMois;
   };
@@ -61,22 +63,25 @@ const CommandesLivreesParMois: React.FC = () => {
     labels,
     datasets: [
       {
-        label: 'Total des commandes  par mois',
+        label: 'Ordered',
         backgroundColor: 'rgba(255, 99, 132, 0.2)',
         borderColor: 'rgba(255, 99, 132, 1)',
         borderWidth: 1,
         hoverBackgroundColor: 'rgba(255, 99, 132, 0.4)',
         hoverBorderColor: 'rgba(255, 99, 132, 1)',
         data: totalValues,
+        
       },
       {
-        label: 'Nombre d\'ordres confirmés',
+        label: 'Delivered',
         backgroundColor: 'rgba(54, 162, 235, 0.2)',
         borderColor: 'rgba(54, 162, 235, 1)',
         borderWidth: 1,
+      
         hoverBackgroundColor: 'rgba(54, 162, 235, 0.4)',
         hoverBorderColor: 'rgba(54, 162, 235, 1)',
         data: confirmedValues,
+        
       },
     ],
   };
@@ -88,18 +93,22 @@ const CommandesLivreesParMois: React.FC = () => {
           ticks: {
             beginAtZero: true,
           },
+         
         },
       ],
     },
   };
 
   if (loading) {
-    return <p>Loading...</p>;
-  }
+    return (
+      <div className='spinner '>
+        <div ></div>
+      </div>
+    );}
 
   return (
-    <div>
-      <h2>Total des commandes livrées par mois :</h2>
+    <div className='graph'>
+      <p>Order Summary</p>
       <Line data={data} />
     </div>
   );

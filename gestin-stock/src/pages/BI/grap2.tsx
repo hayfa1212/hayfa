@@ -67,7 +67,7 @@ const TotalOrderValue: React.FC = () => {
     labels,
     datasets: [
       {
-        label: 'Total Client Order Value',
+        label: 'Sales',
         backgroundColor: 'rgba(255, 99, 132, 0.2)',
         borderColor: 'rgba(255, 99, 132, 1)',
         borderWidth: 1,
@@ -76,7 +76,7 @@ const TotalOrderValue: React.FC = () => {
         data: clientValues,
       },
       {
-        label: 'Total Supplier Order Value',
+        label: 'Purchase',
         backgroundColor: 'rgba(54, 162, 235, 0.2)',
         borderColor: 'rgba(54, 162, 235, 1)',
         borderWidth: 1,
@@ -100,12 +100,16 @@ const TotalOrderValue: React.FC = () => {
   };
 
   if (loading) {
-    return <p>Loading...</p>;
+    return (
+      <div className="spinner ">
+        <div ></div>
+      </div>
+    );
   }
 
   return (
-    <div>
-      <h2>Total Order Values</h2>
+    <div className='graph'>
+<p >Sales & Purchase</p>
       <Bar data={data} />
     </div>
   );

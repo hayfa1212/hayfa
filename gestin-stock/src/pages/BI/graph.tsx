@@ -14,7 +14,7 @@ const ProductTable: React.FC = () => {
 
   useEffect(() => {
     async function fetchProducts() {
-      const { data, error } = await supabase.from('commande').select('product, quantity');
+      const { data, error } = await supabase.from('commande').select('product, quantity').neq('type','Supplier');
 
       if (error) {
         console.error('Error fetching products:', error.message);
@@ -56,10 +56,10 @@ const ProductTable: React.FC = () => {
                 label: 'Total Quantity',
                 data: topProducts.map(product => product.quantity),
                 backgroundColor: [
-                  'rgba(255, 99, 132, 0.8)', // Rouge avec opacité plus élevée
-              'rgba(54, 162, 235, 0.8)', // Bleu avec opacité plus élevée
-              'rgba(255, 206, 86, 0.8)', // Jaune avec opacité plus élevée
-              'rgba(75, 192, 192, 0.8)' 
+                  'rgba(255, 99, 132, 0.8)' ,// Rouge vif
+                  'rgba(54, 162, 235, 0.8)', // Bleu ciel
+                  'rgba(255, 205, 86, 0.8)' ,// Jaune doux
+                  'rgba(153, 102, 255, 0.8)' // Violet pastel 
                 ],
                 borderColor: [
                   'rgba(255, 99, 132, 1)',
@@ -86,25 +86,10 @@ const ProductTable: React.FC = () => {
   }, []);
 
   return (
-    <div>
-      <table>
-        <thead>
-          <tr>
-            <th>Product</th>
-            <th>Quantity</th>
-          </tr>
-        </thead>
-        <tbody>
-          {products.map((product, index) => (
-            <tr key={index}>
-              <td>{product.product}</td>
-              <td>{product.quantity}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className='graph'>
+     
       
-      <div style={{ width: '400px', height: '400px' }}>
+      <div style={{ width: '20rem', height: '20rem' }}>
         <canvas ref={chartRef} style={{ width: '100%', height: '100%' }} />
       </div>
     </div>

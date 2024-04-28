@@ -5,6 +5,7 @@ import supabase from "../../utils/api";
 import "./singleorder.css";
 import notif from "../../Assets/notification.png";
 import { ToastContainer, toast } from "react-toastify";
+import jsPDF from 'jspdf';
 
 const productSchema = Yup.object().shape({
   quantity: Yup.number().typeError("You should put a number"),
@@ -217,6 +218,39 @@ const OrderDetails: React.FC = () => {
     }));
   };
 
+  const downloadCommande = () => {
+    if (!commande) return;
+    // Create a new jsPDF instance
+    const doc = new jsPDF();
+    // Generate PDF content
+    let content = '';
+    // Add product details
+    content += `Product Name: ${product.product_Name}\n`;
+    content += `Product ID: ${product.id}\n`;
+    content += `Product Category: ${product.Category}\n`;
+    content += `Expiry Date: ${product.expire}\n`;
+    // Add supplier details
+    content += `Supplier Name: ${supplier.name}\n`;
+    content += `Supplier Contact: ${supplier.contact}\n`;
+    // Add stock location details
+    content += `Store Name: ${warehouse.name}\n`;
+    // Add order details
+    content += `Order Value: ${commande.orderValue}\n`;
+    content += `Quantity: ${commande.quantity}\n`;
+    content += `Buying Price: ${commande.price}\n`;
+    content += `Status: ${commande.status}\n`;
+    // Add image
+    if (product.image) {
+      const imgData = product.image;
+      doc.addImage(imgData, 'PNG', 10, 10, 50, 50); // Add the image to the PDF
+    }
+    // Add content to the PDF
+    doc.text(content, 10, 70);
+    // Save the PDF
+    doc.save('commande.pdf');
+  };
+  
+
   return (
     <div>
       <div className="searchBar">
@@ -235,7 +269,7 @@ const OrderDetails: React.FC = () => {
                 ) : (
                   <button className="btn" onClick={handleEditClick}>Edit</button>
                 )}
-                <button className="btn">Download all</button>
+               <button className="btn" onClick={downloadCommande}>Download all</button>
               </div>
             </>
           )}
@@ -298,7 +332,7 @@ const OrderDetails: React.FC = () => {
                 <div className="columns">
                   <p id="titre">Quantity: </p>
                   {isEditing ? (
-                    <input type="text" id="valeur" name="quantity" value={(editedOrder as Commande)?.quantity || ''} onChange={handleInputChange} />
+                    <input type="text" id="valeur" name="quantity"  className="columnUser" value={(editedOrder as Commande)?.quantity || ''} onChange={handleInputChange} />
                   ) : (
                     <p id="valeur">{commande.quantity}</p>
                   )}
@@ -310,6 +344,7 @@ const OrderDetails: React.FC = () => {
                       <input
                         type="text"
                         id="valeur"
+                        className="columnUser"
                         name="price"
                         value={(editedOrder as Commande)?.price || ''}
                         onChange={handleInputChange}
@@ -326,6 +361,7 @@ const OrderDetails: React.FC = () => {
                     <select
                       id="valeur"
                       name="status"
+                      className="columnUser"
                       value={(editedOrder as Commande)?.status || ''}
                       onChange={handleSelectChange}
                     >

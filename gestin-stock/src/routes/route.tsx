@@ -27,6 +27,14 @@ import CommandeTable from "../pages/BI/grap2";
 import StarRating from "../pages/reat";
 import RatingReview from "../pages/reat";
 import MonthlyOrderChart from "../pages/BI/graph3";
+import Summary from "../pages/order/summary";
+import OrdersCounter from "../pages/order/summary";
+import SupplierStats from "../pages/BI/supplierinfo";
+import ProductAndOrderStats from "../pages/BI/prodinfo";
+import Sales from "../pages/BI/sales";
+import Achat from "../pages/BI/achat";
+import Tableubord from "../pages/BI/tableaubord";
+import Profites from "../pages/BI/graph4";
 
 
 
@@ -50,6 +58,7 @@ export default function AppRoutes() {
         <Route path="/verifieAccount" element={<VerifierAccount />} />
         <Route path="/Restpass" element={<Resetpass/>} />
         <Route path="/frogot" element={<Forgot/>} />
+        
         <Route
           path="/*"
           element={
@@ -58,9 +67,8 @@ export default function AppRoutes() {
                 <Sidebar />
                 <div>
                   <Routes>
-                 
-                  <Route path="/gra" element={<MonthlyOrderChart />} />
-                  <Route path="/prix" element={<CommandeTable />} />
+                  <Route path="/profit" element={<Profites />} />
+                  <Route path="/dash" element={<Tableubord />} />
                     <Route path="/inventory" element={<Consulterprod />} />
                     <Route path="/suppliers" element={<ConsulterFournisseur />} />
                     <Route path="/store" element={<Consultentrepot />} />

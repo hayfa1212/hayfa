@@ -1,0 +1,18 @@
+.fonte{
+    background-color: white;
+    border-radius: 0.4rem;
+    box-shadow:#5D6679;
+  width: 44rem;
+  height:10rem;
+}
+.sales-info{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+.info{
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    margin-right: 1rem;
+}

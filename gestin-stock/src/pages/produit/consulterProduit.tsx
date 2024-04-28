@@ -28,8 +28,9 @@ const Consulterprod: React.FC = () => {
     const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
     const [displayProducts, setDisplayProducts] = useState<Product[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
+    const [userRole, setUserRole] = useState<string | null>(null);
     const navigate = useNavigate();
-    
+
     useEffect(() => {
         const checkLoggedIn = async () => {
             const { data: { user } } = await supabase.auth.getUser();
@@ -47,17 +48,18 @@ const Consulterprod: React.FC = () => {
                     console.error("Error fetching user data:", userError);
                     toast.error("An error occurred while fetching user data");
                 } else {
-                    const userRole = userData?.role;
-                    if (!userRole) {
+                    const role = userData?.role;
+                    if (!role) {
                         console.error("User role not found");
                         toast.error("User role not found");
+                    } else {
+                        setUserRole(role);
                     }
                 }
             }
         };
         checkLoggedIn();
     }, [navigate]);
-    
 
     useEffect(() => {
         fetchData();
@@ -94,7 +96,11 @@ const Consulterprod: React.FC = () => {
     };
 
     const openAddProductModal = () => {
-        setIsAddProductModalOpen(true);
+        if (userRole !== "responsable logistique") {
+            setIsAddProductModalOpen(true);
+        } else {
+            toast.error("Vous n'êtes pas autorisé à ajouter des produits.");
+        }
     };
 
     const closeAddProductModal = () => {
@@ -102,19 +108,23 @@ const Consulterprod: React.FC = () => {
     };
 
     const openDeleteConfirmationModal = (productId: number) => {
-        Swal.fire({
-            title: "Confirm Deletion",
-            text: "Are you sure you want to delete this product?",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                deleteProduct(productId);
-            }
-        });
+        if (userRole !== "responsable logistique") {
+            Swal.fire({
+                title: "Confirm Deletion",
+                text: "Are you sure you want to delete this product?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    deleteProduct(productId);
+                }
+            });
+        } else {
+            toast.error("Vous n'êtes pas autorisé à supprimer des produits.");
+        }
     };
 
     const deleteProduct = async (productId: number) => {
@@ -176,6 +186,19 @@ const Consulterprod: React.FC = () => {
         return products.reduce((total, product) => total + product.buying_price, 0);
     };
 
+    const downloadAllProducts = () => {
+        // Generate CSV content
+        const csvContent = "data:text/csv;charset=utf-8," + 
+            products.map(product => [product.product_Name, product.buying_price, product.quantity, product.thershold, product.expire, product.availibilty].join(",")).join("\n");
+        // Create link element
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "products.csv");
+        document.body.appendChild(link);
+        // Simulate click
+        link.click();
+    };
     return (
         <div className="home">
             <div>
@@ -217,7 +240,7 @@ const Consulterprod: React.FC = () => {
                         <div className="buttons">
                             <button onClick={openAddProductModal} className="btn" id="add"> Add product</button>
                             <button className="btn">Filters</button>
-                            <button className="btn">Download all</button>
+                            <button className="btn" onClick={downloadAllProducts}>Download all</button>
                         </div>
                     </div>
                     <div>

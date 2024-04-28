@@ -6,6 +6,7 @@ import "./singleProd.css";
 import edit from "../../Assets/edition.png";
 import notif from "../../Assets/notification.png";
 import { ToastContainer, toast } from "react-toastify";
+import jsPDF from 'jspdf'; 
 
 // Définition du schéma de validation avec Yup
 const productSchema = Yup.object().shape({
@@ -207,7 +208,35 @@ const ProductDetails: React.FC = () => {
     return <div>Loading...</div>;
   }
 
-
+  const downloadProductDetails = () => {
+    if (!product) return;
+  
+    // Créer une instance de jsPDF
+    const doc = new jsPDF();
+      // Ajouter l'image du produit au PDF
+    if (product.image) {
+      const imgData = product.image; // Supposons que product.image contient l'URL de l'image
+      doc.addImage(imgData, "JPEG", 10, 40, 50, 50); // Position et taille de l'image dans le PDF
+    }
+  
+    // Générer le contenu du PDF avec les détails du produit
+    let content = "";
+    content += `Product Name: ${product.product_Name}\n`;
+    content += `Product ID: ${product.id}\n`;
+    content += `Product Category: ${product.Category}\n`;
+    content += `Buying Price: ${product.buying_price}\n`;
+    content += `Threshold Value: ${product.thershold}\n`;
+    content += `Expiry Date: ${product.expire}\n`;
+  
+    // Ajouter le contenu au PDF
+    doc.text(content, 10, 10);
+  
+  
+   
+    // Enregistrer le PDF
+    doc.save("product_details.pdf");
+  };
+  
   return (
     <div>
       
@@ -229,7 +258,7 @@ const ProductDetails: React.FC = () => {
                 Edit
               </button>
             )}
-            <button className="btn">Download all</button>
+            <button className="btn" onClick={downloadProductDetails}>Download all</button>
           </div>
         </div>
         <div className="left">

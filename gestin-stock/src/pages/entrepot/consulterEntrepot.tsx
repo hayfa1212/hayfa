@@ -16,6 +16,7 @@ interface Entrepot {
     location: string;
     Number: number;
     description: string;
+    capacite:number;
     image: string;
 }
 
@@ -29,6 +30,7 @@ const Consultentrepot: React.FC = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [editEntrepotId, setEditEntrepotId] = useState<number | null>(null);
     const [editedEntrepot, setEditedEntrepot] = useState<Entrepot | null>(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -143,40 +145,19 @@ const Consultentrepot: React.FC = () => {
         }
     };
 
+ 
+
+   
+
     const openEditModal = (entrepotId: number) => {
         setEditEntrepotId(entrepotId);
         const selectedEntrepot = entrepots.find(entrepot => entrepot.id === entrepotId);
         setEditedEntrepot(selectedEntrepot || null);
+        setIsEditModalOpen(true);
     };
-
+    
     const closeEditModal = () => {
-        setEditEntrepotId(null);
-        setEditedEntrepot(null);
-    };
-
-    const handleEditSubmit = async (editedValues: Entrepot) => {
-        try {
-            const { error } = await supabase
-                .from('entrepot')
-                .update({
-                    name: editedValues.name,
-                    location: editedValues.location,
-                    Number: editedValues.Number,
-                    description: editedValues.description,
-                })
-                .eq('id', editedValues.id);
-
-            if (!error) {
-                toast.success('Entrepot updated successfully');
-                closeEditModal();
-                fetchData(); // Refresh data after update
-            } else {
-                toast.error('Error updating entrepot');
-            }
-        } catch (error) {
-            console.error('Error updating entrepot:', error);
-            toast.error('An error occurred while updating entrepot');
-        }
+        setIsEditModalOpen(false);
     };
 
     return (
@@ -205,10 +186,11 @@ const Consultentrepot: React.FC = () => {
                                         <p id="storename">{entrepot.name}</p>
                                         <p id="info">{entrepot.location}</p>
                                         <p id="info">{entrepot.Number}</p>
+                                        <p id="info">{entrepot.capacite}</p>
                                         <p id="info">{entrepot.description}</p> 
                                        </div>
                                        <div className="decison">
-                                      <button className="btn" id="editstore"    onClick={() => openEditModal(entrepot.id)}>Edit</button> 
+                                       <button className="btn" id="editstore" onClick={() => openEditModal(entrepot.id)}>Edit</button> 
                                       <img src={trash} className="trachs"    onClick={() => openDeleteConfirmationModal(entrepot.id)} />    
                                 </div>
                               </div>
@@ -227,7 +209,70 @@ const Consultentrepot: React.FC = () => {
                 </div>
             </div>
 
+
             <Addstore isOpen={isAddEntrepotModalOpen} onClose={closeAddEntrepotModal} />
+            {isEditModalOpen && editedEntrepot && (
+    <Modal
+        isOpen={isEditModalOpen}
+        onRequestClose={closeEditModal}
+        style={{
+            content: {
+                height: '20rem',
+                width:"25rem", // Adjust height as needed
+                backgroundColor: '#fff',
+                marginLeft:"30rem",
+                marginTop:"3rem"
+              
+             // Change background color as needed
+            }
+        }}
+    >
+      
+        <Formik
+            initialValues={{
+                name: editedEntrepot.name,
+                location: editedEntrepot.location,
+                number: editedEntrepot.Number,
+                capacite: editedEntrepot.capacite,
+                description: editedEntrepot.description
+
+            }}
+            onSubmit={(values, { setSubmitting }) => {
+               
+                setSubmitting(false);
+                closeEditModal();
+            }}
+        >
+            <Form className="space">
+            <p className="head" id="newUser">Edit Entrepot</p>
+                <div  className="User">
+                    <label htmlFor="name">Name:</label>
+                    <Field type="text" name="name"    className="columnUser" />
+                </div>
+                <div  className="User">
+                    <label htmlFor="location">Location:</label>
+                    <Field type="text" name="location"    className="columnUser" />
+                </div>
+                <div  className="User">
+                    <label htmlFor="number">Number:</label>
+                    <Field type="number" name="number"    className="columnUser" />
+                </div>
+                <div  className="User">
+                    <label htmlFor="number">Capacite</label>
+                    <Field type="number" name="capacite"    className="columnUser" />
+                </div>
+                <div  className="User">
+                    <label htmlFor="description">Description:</label>
+                    <Field type="text" name="description"     className="columnUser"/>
+                </div>
+                <div className='buttons'>
+                <button onClick={closeEditModal} className="cancel">Cancel</button>
+                <button type="submit" className='add'>Update</button>
+                </div>
+            </Form>
+        </Formik>
+    </Modal>
+)}
 
             <ToastContainer/>
         </div>

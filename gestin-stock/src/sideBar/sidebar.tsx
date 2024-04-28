@@ -1,5 +1,5 @@
-import React, { ReactNode } from 'react';
-import { NavLink } from 'react-router-dom';
+import React, { ReactNode, useState, useEffect } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
 import box from '../Assets/box.png';
 import './sideBar.css';
 import dashbord from '../Assets/Home.png';
@@ -11,13 +11,47 @@ import store from '../Assets/Manage Store.png';
 import setting from '../Assets/Settings.png';
 import logOut from '../Assets/Log Out.png';
 import supabase from '../utils/api';
-import user from "../Assets/Suppliers.png";
+import userIcon from "../Assets/Suppliers.png";
+import { toast } from 'react-toastify';
 
 interface SidebarProps {
     children?: ReactNode;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ children }) => {
+    const [userRole, setUserRole] = useState<string | null>(null);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const checkLoggedIn = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                navigate("/");
+                toast.error('You should login');
+            } else {
+                const { data: userData, error: userError } = await supabase
+                    .from("utilisateur")
+                    .select("role")
+                    .eq("email", user.email)
+                    .single();
+    
+                if (userError) {
+                    console.error("Error fetching user data:", userError);
+                    toast.error("An error occurred while fetching user data");
+                } else {
+                    const role = userData?.role;
+                    if (!role) {
+                        console.error("User role not found");
+                        toast.error("User role not found");
+                    } else {
+                        setUserRole(role);
+                    }
+                }
+            }
+        };
+        checkLoggedIn();
+    }, []);
+
     const handleLogout = async () => {
         try {
             // Obtenez l'utilisateur actuellement connecté
@@ -55,15 +89,15 @@ const Sidebar: React.FC<SidebarProps> = ({ children }) => {
                 <div id='space'>
                     <img src={box} className='box' alt="Box icon" />
                     <div className='link'>
+                    {userRole === 'admin' && (
                         <NavLink to="/dash" className='Place'>
                             <img src={dashbord} className='icons' alt="Dashboard icon" />Dashboard
                         </NavLink>
+                         )}
                         <NavLink to="/inventory" className='Place' >
                             <img src={inventory} className='icons' alt="Inventory icon" />Inventory
                         </NavLink>
-                        <NavLink to="/reports" className='Place'>
-                            <img src={report} className='icons' alt="Reports icon" />Reports
-                        </NavLink>
+                      
                         <NavLink to="/suppliers" className='Place'>
                             <img src={supplier} className='icons' alt="Suppliers icon" />Suppliers
                         </NavLink>
@@ -73,9 +107,11 @@ const Sidebar: React.FC<SidebarProps> = ({ children }) => {
                         <NavLink to="/store" className='Place'>
                             <img src={store} className='icons' alt="Manage Store icon" />Manage Store
                         </NavLink>
-                        <NavLink to="/users" className='Place'>
-                            <img src={user} className='icons' alt="Manage Store icon" />Users
-                        </NavLink>
+                        {userRole === 'admin' && (
+                            <NavLink to="/users" className='Place'>
+                                <img src={userIcon} className='icons' alt="Manage Store icon" />Users
+                            </NavLink>
+                        )}
                     </div>
                 </div>
                 <div className='link'>

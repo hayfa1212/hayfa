@@ -1,0 +1,25 @@
+.supp-info{
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    margin-left: 0.4rem;
+}
+.cate{
+    width: 1.5rem;
+    height: 1.5rem;
+}
+.num{
+    font-size: 14px;
+    color: #444444;
+}
+.vale{
+    color: #5D6679;
+}
+.font{
+    background-color: white;
+    border-radius: 0.4rem;
+    box-shadow:#5D6679;
+    width: 20rem;
+    height: 10rem;
+}
+

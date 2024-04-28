@@ -31,7 +31,8 @@ const ConsulterFournisseur: React.FC = () => {
     const [itemsPerPage] = useState(6);
     const [editSupplier, setEditSupplier] = useState<Supplier | null>(null);
     const navigate = useNavigate();
-
+    const [loading, setLoading] = useState(true);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     useEffect(() => {
         const checkLoggedIn = async () => {
             const { data: { user } } = await supabase.auth.getUser()
@@ -58,7 +59,9 @@ const ConsulterFournisseur: React.FC = () => {
             } catch (error) {
                 console.error('Error fetching suppliers:', error);
                 toast.error('An error occurred while fetching suppliers');
-            }
+            }finally {
+                setLoading(false);
+              }
         };
         fetchData();
     }, []);
@@ -109,6 +112,7 @@ const ConsulterFournisseur: React.FC = () => {
             } catch (error) {
                 console.error('Error deleting supplier:', error);
                 toast.error('An error occurred while deleting supplier');
+
             }
 
             closeDeleteConfirmationModal();
@@ -119,21 +123,26 @@ const ConsulterFournisseur: React.FC = () => {
         setCurrentPage(pageNumber);
     };
 
-    const openEditSupplierModal = (supplier: Supplier) => {
+   
+
+    const openEditModal = (supplier: Supplier) => {
         setEditSupplier(supplier);
+        setIsEditModalOpen(true);
     };
-
-    const closeEditSupplierModal = () => {
-        setEditSupplier(null);
+    
+    // Function to close the edit modal
+    const closeEditModal = () => {
+        setIsEditModalOpen(false);
     };
-
+    
+    // Function to update the supplier
     const updateSupplier = async (updatedSupplier: Supplier) => {
         try {
-            const { error } = await supabase
+            const { data, error } = await supabase
                 .from('supplier')
                 .update(updatedSupplier)
                 .eq('id', updatedSupplier.id);
-
+    
             if (!error) {
                 const updatedSuppliers = suppliers.map(supplier =>
                     supplier.id === updatedSupplier.id ? updatedSupplier : supplier
@@ -147,10 +156,12 @@ const ConsulterFournisseur: React.FC = () => {
             console.error('Error updating supplier:', error);
             toast.error('An error occurred while updating supplier');
         }
-
-        closeEditSupplierModal();
+    
+        closeEditModal();
     };
+    
 
+   
     return (
         <div className="home">
             <div>
@@ -169,7 +180,7 @@ const ConsulterFournisseur: React.FC = () => {
                         <div>
                    <table className="supplier-table">
                    <thead>
-                    <tr>
+                    <tr className="titleProd">
                       <th>Name</th>
                       <th>Product</th>
                       <th>Contact Number</th>
@@ -189,7 +200,7 @@ const ConsulterFournisseur: React.FC = () => {
                         <td>{supplier.type}</td>
                        <td>{supplier.onTheWay}</td>
                       <td>
-                        <img src={editIcon} alt="Edit" className="trach" onClick={() => openEditSupplierModal(supplier)} />
+                      <img src={editIcon} alt="Edit" className="trach" onClick={() => openEditModal(supplier)} />
                         <img src={trash} alt="Delete" className="trach" onClick={() => {
                             Swal.fire({
                                 title: "Are you sure?",
@@ -211,15 +222,108 @@ const ConsulterFournisseur: React.FC = () => {
              </tbody>
            </table>
          </div>
-
-                    </div>
-                </div>
-                <div className="pagination">
+         <div className="pagination">
                     <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1}>Previous</button>
                     <span>Page {currentPage} of {Math.ceil(suppliers.length / itemsPerPage)}</span>
                     <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage === Math.ceil(suppliers.length / itemsPerPage)}>Next</button>
                 </div>
+                    </div>
+                </div>
+                
             </div>
+            {editSupplier && (
+    <Modal
+        isOpen={isEditModalOpen}
+        onRequestClose={closeEditModal}
+       
+        
+        style={{
+            content: {
+                height: '25rem',
+                width:"25rem", // Adjust height as needed
+                backgroundColor: '#fff',
+                marginLeft:"30rem"
+              
+             // Change background color as needed
+            }
+        }}
+    >
+        <div className="space">
+        <p className="head" id="newUser">Edit Supplier</p>
+        <div  className="User">
+            <label>Name:</label>
+            <input
+            className="columnUser"
+                type="text"
+                value={editSupplier.name}
+                onChange={e =>
+                    setEditSupplier({ ...editSupplier, name: e.target.value })
+                }
+            />
+        </div>
+        <div  className="User">
+            <label>Product:</label>
+            <input
+            className="columnUser"
+                type="text"
+                value={editSupplier.product}
+                onChange={e =>
+                    setEditSupplier({ ...editSupplier, product: e.target.value })
+                }
+            />
+        </div>
+        <div  className="User">
+            <label>Contact Number:</label>
+            <input
+            className="columnUser"
+                type="text"
+                value={editSupplier.contact}
+                onChange={e =>
+                    setEditSupplier({ ...editSupplier })
+                }
+            />
+        </div>
+        <div  className="User">
+            <label>Email:</label>
+            <input
+            className="columnUser"
+                type="email"
+                value={editSupplier.email}
+                onChange={e =>
+                    setEditSupplier({ ...editSupplier, email: e.target.value })
+                }
+            />
+        </div>
+        <div  className="User">
+            <label>Type:</label>
+            <input
+            className="columnUser"
+                type="text"
+                value={editSupplier.type}
+                onChange={e =>
+                    setEditSupplier({ ...editSupplier, type: e.target.value })
+                }
+            />
+        </div>
+        <div  className="User">
+            <label>On the Way:</label>
+            <input
+            className="columnUser"
+                type="text"
+                value={editSupplier.onTheWay}
+                onChange={e =>
+                    setEditSupplier({ ...editSupplier, onTheWay: e.target.value })
+                }
+            />
+        </div>
+        <div className='buttons'>
+        <button onClick={closeEditModal} className="cancel">Cancel</button>
+        <button onClick={() => updateSupplier(editSupplier)} className='add'>Update</button>
+        </div>
+        </div>
+    </Modal>
+)}
+
 
             <AddSupplier isOpen={isAddSupplierModalOpen} onClose={closeAddSupplierModal} />
 
