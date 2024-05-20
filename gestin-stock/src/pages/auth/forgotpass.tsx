@@ -4,10 +4,11 @@ import * as React from 'react'
 import {Formik,Form,Field,ErrorMessage} from 'formik'
 import * as Yup from 'yup'
 import supabase from '../../utils/api'
-import { toast } from 'react-toastify'
+import { ToastContainer, toast } from 'react-toastify'
 import Logo from '../../Components/siginCommun/logoSigin'
 import Title from '../../Components/siginCommun/title'
 import Msglink from '../../Components/siginCommun/sigincommun'
+import { error } from 'console'
 
 
 
@@ -36,6 +37,7 @@ export const Forgot: React.FC<{}> = () => {
                     console.log('form submit', values)
                     const forgetPassword = await supabase.auth.resetPasswordForEmail(values.email, {
                         redirectTo: 'http://localhost:3000/Restpass',
+                        
                       })
                       
                     if (forgetPassword) {
@@ -65,7 +67,7 @@ export const Forgot: React.FC<{}> = () => {
                             msg="don't have an account?"
                             destination="Sigin in"/>
                          </div>
-               
+               <ToastContainer/>
                     </Form>
                 )}
             </Formik>

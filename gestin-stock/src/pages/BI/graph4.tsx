@@ -3,7 +3,7 @@ import { Bar } from 'react-chartjs-2';
 import supabaseClient from '../../utils/api';
 import './sales.css';
 
-const TotalOrderValue: React.FC = () => {
+const Productsale: React.FC = () => {
   const [productTotalOrderValue, setProductTotalOrderValue] = useState<{ productName: string; totalOrderValue: number }[]>([]);
 
   useEffect(() => {
@@ -49,28 +49,34 @@ const TotalOrderValue: React.FC = () => {
     fetchTotalOrderValue();
   }, []);
 
+  // Tableau de couleurs assorties mais fixes
+  const colors = ["#845EC2", "#D65DB1", "#FF6F91", "#FF9671", "#FFC75F", "#00FF7F", "#4682B4", "#FFD700", "#32CD32", "#FF6347"];
+
   // Préparer les données pour le graphique en barres
   const chartData = {
     labels: productTotalOrderValue.map(item => item.productName),
     datasets: [
       {
-        label: 'Total des ventes par produit',
+        label: 'Product Revenue',
         data: productTotalOrderValue.map(item => item.totalOrderValue),
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        borderColor: 'rgba(75, 192, 192, 1)',
-        borderWidth: 1,
+        backgroundColor: colors, // Utilisation du tableau de couleurs
+        borderColor: 'rgba(0, 0, 0, 0)', // Pas de bordure
+        borderWidth: 0.5,
+        barThickness: 20,
+        barSpacing: 0.1, 
       },
     ],
   };
 
+ 
   return (
-    <div >
-      <p id="inve">Total des ventes par produit (Top 10)</p>
+    <div  className='graph' style={{marginTop:"1rem",height:"20rem"}}>
+      <p id="inve">Best selling product</p>
       <div className='sales-info'>
-        <Bar data={chartData} />
+        <Bar data={chartData}  />
       </div>
     </div>
   );
 };
 
-export default TotalOrderValue;
+export default Productsale;

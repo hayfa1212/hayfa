@@ -15,3 +15,14 @@ flex-direction: column;
     gap: 1rem;
     margin-left: 1rem;
 }
+.imprime
+{
+    width: 2rem;
+    height: 2rem;
+    
+}
+.impr{
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}

@@ -4,10 +4,10 @@ import supabase from "../../utils/api";
 import { ToastContainer, toast } from "react-toastify";
 import Adduser from "../users/addUser";
 import "../../pages/produit/consulterProduit.css";
-import trach from "../../Assets/Trash.svg";
-import Modal from "react-modal";
+import trach from "../../Assets/poubelle.png";
+
 import "./consulterUser.css";
-import edit from "../../Assets/edition.png";
+import edit from "../../Assets/editer.png";
 import EditUserModal from "../users/updateUser";
 import { NavLink, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -38,14 +38,17 @@ const ConsulterUsers: React.FC = () => {
     const checkLoggedIn = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
+      
         navigate("/");
         toast.error('you should login')
-      }
+      }if(user){
+      console.log(user.email)
+    }
     };
 
     checkLoggedIn();
   }, [navigate]);
-
+//consulter
   const fetchUsers = async () => {
     try {
       const { data, error } = await supabase.from("utilisateur").select();
@@ -70,11 +73,12 @@ const ConsulterUsers: React.FC = () => {
     setSearchTerm(value);
     filterUsers(value);
   };
-
+//search
   const filterUsers = (searchTerm: string) => {
     const filtered = users.filter(
       (user) =>
-        user.name.toLowerCase().includes(searchTerm.toLowerCase())
+        user.role.toLowerCase().includes(searchTerm.toLowerCase()),
+     
     );
     setDisplayUsers(filtered);
   };
@@ -236,13 +240,13 @@ const ConsulterUsers: React.FC = () => {
                       <div>
                         <img
                           src={edit}
-                          className="trach"
+                         className="trach"
                           onClick={() => openEditModal(user)}
                           alt="Edit"
                         />
                         <img
                           src={trach}
-                          className="action-icon"
+                          className="trach"
                           onClick={() => openDeleteConfirmationModal(user.id)}
                           alt="Delete"
                         />

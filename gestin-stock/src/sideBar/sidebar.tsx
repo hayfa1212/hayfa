@@ -4,7 +4,6 @@ import box from '../Assets/box.png';
 import './sideBar.css';
 import dashbord from '../Assets/Home.png';
 import inventory from '../Assets/Inventory.png';
-import report from '../Assets/Report.png';
 import order from '../Assets/Order.png';
 import supplier from '../Assets/Suppliers.png';
 import store from '../Assets/Manage Store.png';
@@ -104,9 +103,11 @@ const Sidebar: React.FC<SidebarProps> = ({ children }) => {
                         <NavLink to="/orders" className='Place'>
                             <img src={order} className='icons' alt="Orders icon" />Orders
                         </NavLink>
+                        {userRole !== 'responsable logistique' && (
                         <NavLink to="/store" className='Place'>
                             <img src={store} className='icons' alt="Manage Store icon" />Manage Store
                         </NavLink>
+                         )}
                         {userRole === 'admin' && (
                             <NavLink to="/users" className='Place'>
                                 <img src={userIcon} className='icons' alt="Manage Store icon" />Users

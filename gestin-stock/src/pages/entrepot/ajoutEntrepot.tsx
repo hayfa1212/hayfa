@@ -166,7 +166,7 @@ const AddStore: React.FC<AddStoreProps> = ({ isOpen, onClose }) => {
                   )}
                 </div>
                 <div className="User">
-                  <label htmlFor="number">Capacite</label>
+                  <label htmlFor="number">Capacity</label>
                   <Field
                     type="number"
                     id="capacite"

@@ -3,11 +3,13 @@ import supabase from '../../utils/api';
 import quantity from '../../Assets/Quantity.png'
 import recived from '../../Assets/On the way.png'
 import '../BI/suppinfo.css'
+import flech from '../../Assets/fleche-droite.png'
+import { NavLink } from 'react-router-dom';
 
 
 const Product: React.FC = () => {
   const [totalProductQuantity, setTotalProductQuantity] = useState<number>(0);
-  const [totalOrderQuantity, setTotalOrderQuantity] = useState<number>(0);
+  
   const [totalSupplierQuantity, setTotalSupplierQuantity] = useState<number>(0); // Nouveau state pour la quantité de type fournisseur
 
   useEffect(() => {
@@ -15,7 +17,8 @@ const Product: React.FC = () => {
       // Récupérer le total des quantités dans la table "produit" pour tous les produits
       const { data: productData, error: productError } = await supabase
         .from('product')
-        .select('quantity');
+        .select('quantity')
+       
 
       if (productError) {
         console.error('Erreur lors de la récupération des quantités de produit:', productError.message);
@@ -55,8 +58,13 @@ const Product: React.FC = () => {
 
   return (
     <div className='font'>
-
+<div className='head'>
        <p id="inve">Inventory Summary</p>
+      <NavLink to={'/tb'}> <img src={flech} style={{
+        width:"2rem",height:"2rem"
+       }}/>
+       </NavLink>
+       </div>
        <div className='supp-info'>
        <div>
        <img src={quantity}/>

@@ -79,7 +79,7 @@ const Sales: React.FC = () => {
             }
           }
           setTotalPurchasePrice(totalPrice);
-          const profit= totalOrderValue-totalPrice
+          const profit=totalOrderValue-totalPrice
           setProfit(profit)
         }
       } catch (error) {

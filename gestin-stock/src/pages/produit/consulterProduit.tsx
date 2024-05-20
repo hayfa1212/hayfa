@@ -5,7 +5,7 @@ import supabase from "../../utils/api";
 import { ToastContainer, toast } from "react-toastify";
 import Ajoutproduit from '../../pages/produit/ajoutProduit';
 import './consulterProduit.css';
-import trach from '../../Assets/Trash.svg';
+import trach from '../../Assets/poubelle.png';
 import Swal from "sweetalert2";
 import ProductRating from "../../pages/reat";
 
@@ -30,7 +30,7 @@ const Consulterprod: React.FC = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [userRole, setUserRole] = useState<string | null>(null);
     const navigate = useNavigate();
-
+//check if user authenticated
     useEffect(() => {
         const checkLoggedIn = async () => {
             const { data: { user } } = await supabase.auth.getUser();
@@ -60,17 +60,15 @@ const Consulterprod: React.FC = () => {
         };
         checkLoggedIn();
     }, [navigate]);
-
-    useEffect(() => {
-        fetchData();
-    }, []);
+// fetch date and consult list product
+   
 
     const fetchData = async () => {
         try {
             const { data, error } = await supabase
                 .from('product')
                 .select();
-
+               
             if (!error) {
                 setProducts(data || []);
                 setDisplayProducts(data || []);
@@ -82,19 +80,57 @@ const Consulterprod: React.FC = () => {
             toast.error('An error occurred while fetching products');
         }
     };
+    useEffect(() => {
+        fetchData();
+    }, []);
 
+
+
+//modified status if quantity=0
+const updateAvailability = async () => {
+    try {
+        // Update availability based on product quantity
+        for (const product of products) {
+            const newAvailability = product.quantity === 0 ? 'Out of stock' : 'in-stock';
+            await supabase
+                .from('product')
+                .update({ availibilty: newAvailability })
+                .eq('id', product.id);
+
+            // Update the local state of products
+            setProducts(prevProducts =>
+                prevProducts.map(prevProduct =>
+                    prevProduct.id === product.id ? { ...prevProduct, availibilty: newAvailability } : prevProduct
+                )
+            );
+            setDisplayProducts(prevProducts =>
+                prevProducts.map(prevProduct =>
+                    prevProduct.id === product.id ? { ...prevProduct, availibilty: newAvailability } : prevProduct
+                )
+            );
+        }
+    } catch (error) {
+        console.error('Error updating availability:', error);
+    }
+};
+
+useEffect(() => {
+    updateAvailability();
+}, [products]);
+
+
+//search product
     const handleSearch = (value: string) => {
         setSearchTerm(value);
         filterProducts(value);
     };
-
     const filterProducts = (searchTerm: string) => {
         const filtered = products.filter(product =>
             product.product_Name.toLowerCase().includes(searchTerm.toLowerCase())
         );
         setDisplayProducts(filtered);
     };
-
+//check role and open modal add
     const openAddProductModal = () => {
         if (userRole !== "responsable logistique") {
             setIsAddProductModalOpen(true);
@@ -106,7 +142,7 @@ const Consulterprod: React.FC = () => {
     const closeAddProductModal = () => {
         setIsAddProductModalOpen(false);
     };
-
+//check role and open  modal delete product
     const openDeleteConfirmationModal = (productId: number) => {
         if (userRole !== "responsable logistique") {
             Swal.fire({
@@ -126,7 +162,7 @@ const Consulterprod: React.FC = () => {
             toast.error("Vous n'êtes pas autorisé à supprimer des produits.");
         }
     };
-
+//delet product
     const deleteProduct = async (productId: number) => {
         try {
             const { error } = await supabase
@@ -146,7 +182,7 @@ const Consulterprod: React.FC = () => {
             toast.error('An error occurred while deleting product');
         }
     };
-
+//pagination
     const getCurrentPageProducts = () => {
         const startIndex = (currentPage - 1) * PAGE_SIZE;
         const endIndex = startIndex + PAGE_SIZE;
@@ -158,7 +194,6 @@ const Consulterprod: React.FC = () => {
             setCurrentPage(currentPage + 1);
         }
     };
-
     const previousPage = () => {
         if (currentPage > 1) {
             setCurrentPage(currentPage - 1);
@@ -172,20 +207,20 @@ const Consulterprod: React.FC = () => {
     const getTotalProducts = () => {
         return products.length;
     };
-
+//calcule total category
     const getTotalCategories = () => {
         const uniqueCategories = Array.from(new Set(products.map(product => product.Category)));
         return uniqueCategories.length;
     };
-
+//calcul product out stock
     const countOutOfStockProducts = () => {
         return products.filter(product => product.availibilty === 'Out of stock').length;
     };
-
+//calcule total buynigprice
     const getTotalBuyingPrice = () => {
         return products.reduce((total, product) => total + product.buying_price, 0);
     };
-
+//download list product
     const downloadAllProducts = () => {
         // Generate CSV content
         const csvContent = "data:text/csv;charset=utf-8," + 
@@ -253,8 +288,9 @@ const Consulterprod: React.FC = () => {
                                     <td>Thershold values</td>
                                     <td>Expiry data</td>
                                     <td>Availability</td>
-                                    <td>Action</td>
                                     <td>Rate</td>
+                                    <td>Action</td>
+                                  
                                 </tr>
                             </thead>
                             <tbody>
@@ -272,10 +308,11 @@ const Consulterprod: React.FC = () => {
                                         <td style={{ color: product.availibilty === 'in-stock' ? '#10A760' : 'red' }}>
                                             {product.availibilty}
                                         </td>
+                                        <td><ProductRating productId={product.id} /></td>
                                         <td>
                                             <img src={trach} className="trach" onClick={() => openDeleteConfirmationModal(product.id)} />
                                         </td>
-                                        <td><ProductRating productId={product.id} /></td>
+                                        
                                     </tr>
                                 ))}
                             </tbody>

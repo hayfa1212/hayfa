@@ -16,6 +16,7 @@ interface Commande {
   dateDelivery: string;
   type:string;
   stauts:string;
+  idProduct:number;
 }
 
 const initialValues: Commande = {
@@ -28,7 +29,8 @@ const initialValues: Commande = {
   buyingPrice: 0,
   dateDelivery: "",
   type:"",
-  stauts: "En attente",
+  stauts: "Pending",
+  idProduct:0,
 };
 
 const validationSchema = Yup.object({
@@ -75,7 +77,7 @@ const AjoutCommande: React.FC<AjoutCommandeProps> = ({ isOpen, onClose }) => {
     try {
       const productData = await supabase
         .from('product')
-        .select('quantity')
+        .select('quantity,id')
         .eq('product_Name', values.product)
         .single();
 
@@ -99,6 +101,8 @@ const AjoutCommande: React.FC<AjoutCommandeProps> = ({ isOpen, onClose }) => {
           .from('product')
           .update({ quantity: newQuantity })
           .eq('product_Name', values.product);
+         
+
 
         const { data, error } = await supabase.from('commande').insert([
           { 
@@ -112,7 +116,7 @@ const AjoutCommande: React.FC<AjoutCommandeProps> = ({ isOpen, onClose }) => {
             dateDelivery: values.dateDelivery,
             type:values.type,
             status:values.stauts,
-           
+           idProduct:productData.data.id,
           },
         ]);
 
@@ -142,12 +146,12 @@ const AjoutCommande: React.FC<AjoutCommandeProps> = ({ isOpen, onClose }) => {
               <p id="newUser">New Order</p>
               <div className="column">
                 <label htmlFor='product' id="attribute">Product Name</label>
-                <Field type='text' id='product' name='product' className="columnUser" placeholder="Entrez le nom du produit" />
+                <Field type='text' id='product' name='product' className="columnUser" placeholder="Enter product name" />
                 <ErrorMessage name="product" component="div" className="error" />
               </div>
               <div className="column">
                 <label htmlFor='id' id="attribute">order ID</label>
-                <Field type='number' id='id' name='id' className="columnUser" placeholder="Entrez l'ID de la commande" />
+                <Field type='number' id='id' name='id' className="columnUser" placeholder="Enter the order ID" />
                 <ErrorMessage name="id" component="div" className="error" />
               </div>
               <div className="column">
@@ -173,32 +177,32 @@ const AjoutCommande: React.FC<AjoutCommandeProps> = ({ isOpen, onClose }) => {
               </div>
               <div className="column">
                 <label htmlFor='orderValue'>Order Value</label>
-                <Field type='float' id='orderValue' name='orderValue' className="columnUser" placeholder="Entrez la valeur de la commande" />
+                <Field type='float' id='orderValue' name='orderValue' className="columnUser" placeholder="Enter order value" />
                 <ErrorMessage name="orderValue" component="div" className="error" />
               </div>
               <div className="column">
                 <label htmlFor='quantity'>Quantity</label>
-                <Field type='number' id='quantity' name='quantity'className="columnUser"  placeholder="Entrez la quantité" />
+                <Field type='number' id='quantity' name='quantity'className="columnUser"  placeholder="Enter quantity" />
                 <ErrorMessage name="quantity" component="div" className="error" />
               </div>
               <div className="column">
                 <label htmlFor='unit'>Unite</label>
-                <Field type='text' id='unit' name='unit' className="columnUser"  placeholder="Entrez l'unité"/>
+                <Field type='text' id='unit' name='unit' className="columnUser"  placeholder="Enter unit"/>
                 <ErrorMessage name="unit" component="div" className="error" />
               </div>
               <div className="column">
                 <label htmlFor='buyingPrice'> Buying Price</label>
-                <Field type='number' id='buyingPrice' name='buyingPrice' className="columnUser" placeholder="Entrez le prix d'achat" />
+                <Field type='number' id='buyingPrice' name='buyingPrice' className="columnUser" placeholder="Enter purchase price" />
                 <ErrorMessage name="buyingPrice" component="div" className="error" />
               </div>
               <div className="column">
                 <label htmlFor='dateDelivery'>Date of delivery</label>
-                <Field type='date' id='dateDelivery' name='dateDelivery' className="columnUser" placeholder="Entrez la date de livraison" />
+                <Field type='date' id='dateDelivery' name='dateDelivery' className="columnUser" placeholder="Enter the delivery date" />
                 <ErrorMessage name="dateDelivery" component="div" className="error" />
               </div>
             
               <div className='buttons'>
-                <button type='button' onClick={onClose} className="cancel">Annuler</button>
+                <button type='button' onClick={onClose} className="cancel">Cancel</button>
                 <button type='submit' className='add'>Add Order</button>
               </div>
               <ToastContainer />

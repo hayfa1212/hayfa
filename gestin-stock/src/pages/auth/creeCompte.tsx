@@ -41,6 +41,13 @@ const Account: React.FC = () => {
         email: values.email,
         password: values.password
       });
+      const { } = await supabase.from('utilisateur').insert([
+        { 
+          name:values.name,
+          email:values.email 
+        },
+      ]);
+  
   
       console.log(data);
   

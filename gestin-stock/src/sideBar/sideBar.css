@@ -3,11 +3,12 @@
   flex-direction: row;
   align-items: flex-start;
 
-  color: grey;
+  color: rgb(104, 103, 103);
   width: 17rem; 
-  background-color: white;
+  background-color:  #ffffff;
   border-radius: 0.3rem 0.3rem 0 0;
-  box-shadow: 1rem gray;
+     box-shadow: 0 0 2rem rgba(102, 100, 100, 0.1);
+     
 
 }
 .sideBar .link a {

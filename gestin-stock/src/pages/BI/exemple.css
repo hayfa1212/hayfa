@@ -1,0 +1,55 @@
+/* Styles for sales overview container */
+.salesOverview {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #fff; /* Background color white */
+    border-radius: 5px; /* Rounded corners */
+    padding: 20px; /* Add some padding */
+  }
+  
+  /* Styles for the table */
+  .statistics {
+    width: 30rem;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  
+  .statistics th, .statistics td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .statistics th {
+    
+    text-align: left;
+    font-weight: normal;
+  }
+  
+  .statistics td {
+    text-align: center;
+  }
+  
+  /* Hover effect on table rows */
+  .statistics tr:hover {
+    background-color: #f9f9f9;
+  }
+  
+  /* Styles for the table header */
+  #inve {
+    font-size: 20px;
+    font-style: italic;
+  }
+  .see{
+    color: rgb(209, 54, 54);
+   font: 0.8rem;
+  }
+  .see:hover{
+    cursor:pointer;
+    color: rgb(156, 22, 22);
+  }
+  .head{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  

@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom"; 
-import SearchInput from "../../searchBar";
-import supabase from "../../utils/api";
+import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
-import trash from '../../Assets/Trash.svg';
-import Modal from "react-modal";
-import { Formik, Form, Field } from "formik";
-import './consulterStore.css';
-import Addstore from "./ajoutEntrepot";
+import supabase from "../../utils/api";
 import Swal from 'sweetalert2';
+import Modal from "react-modal";
+import Addstore from "./ajoutEntrepot";
+import SearchInput from "../../searchBar";
+import trash from '../../Assets/poubelle.png';
+import './consulterStore.css'; // Importation de votre fichier CSS
 
 interface Entrepot {
     id: number;
@@ -16,7 +15,7 @@ interface Entrepot {
     location: string;
     Number: number;
     description: string;
-    capacite:number;
+    capacite: number;
     image: string;
 }
 
@@ -28,9 +27,10 @@ const Consultentrepot: React.FC = () => {
     const [isAddEntrepotModalOpen, setIsAddEntrepotModalOpen] = useState(false);
     const [displayEntrepots, setDisplayEntrepots] = useState<Entrepot[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const [editEntrepotId, setEditEntrepotId] = useState<number | null>(null);
-    const [editedEntrepot, setEditedEntrepot] = useState<Entrepot | null>(null);
+    const [editingEntrepot, setEditingEntrepot] = useState<Entrepot | null>(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [newImage, setNewImage] = useState<File | null>(null);
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -77,14 +77,6 @@ const Consultentrepot: React.FC = () => {
             entrepot.name.toLowerCase().includes(searchTerm.toLowerCase())
         );
         setDisplayEntrepots(filtered);
-    };
-
-    const openAddEntrepotModal = () => {
-        setIsAddEntrepotModalOpen(true);
-    };
-
-    const closeAddEntrepotModal = () => {
-        setIsAddEntrepotModalOpen(false);
     };
 
     const getCurrentPageEntrepots = () => {
@@ -145,136 +137,203 @@ const Consultentrepot: React.FC = () => {
         }
     };
 
- 
-
-   
-
-    const openEditModal = (entrepotId: number) => {
-        setEditEntrepotId(entrepotId);
-        const selectedEntrepot = entrepots.find(entrepot => entrepot.id === entrepotId);
-        setEditedEntrepot(selectedEntrepot || null);
+    const openEditModal = (entrepot: Entrepot) => {
+        setEditingEntrepot(entrepot);
         setIsEditModalOpen(true);
     };
-    
+
     const closeEditModal = () => {
+        setEditingEntrepot(null);
         setIsEditModalOpen(false);
     };
 
+    const updateEntrepot = async (updatedEntrepot: Entrepot) => {
+        try {
+            // Update entrepot without image
+            const { data: entrepotData, error: entrepotError } = await supabase
+                .from('entrepot')
+                .update(updatedEntrepot)
+                .eq('id', updatedEntrepot.id);
+
+            if (entrepotError) {
+                console.error('Error updating entrepot:', entrepotError.message);
+                toast.error('An error occurred while updating entrepot');
+            } else {
+                console.log('Entrepot updated successfully without image');
+
+                // If a new image is selected, update the image
+                if (newImage) {
+                    const { data: fileData, error: fileError } = await supabase.storage
+                        .from('imagestore')
+                        .upload(`${newImage.name}`, newImage);
+
+                    if (fileError) {
+                        console.error('Error uploading image to Supabase Storage:', fileError.message);
+                        toast.error('An error occurred while uploading image');
+                    } else {
+                        const response = await supabase.storage
+                            .from("imagestore")
+                            .getPublicUrl(`${newImage.name}`);
+                        const imageUrl = response.data.publicUrl;
+
+                        const { data: updatedEntrepotData, error: updatedEntrepotError } = await supabase
+                            .from('entrepot')
+                            .update({ ...updatedEntrepot, image: imageUrl })
+                            .eq('id', updatedEntrepot.id);
+
+                        if (updatedEntrepotError) {
+                            console.error('Error updating entrepot with image:', updatedEntrepotError.message);
+                            toast.error('An error occurred while updating entrepot with image');
+                        } else {
+                            console.log('Entrepot updated successfully with image');
+                            closeEditModal();
+                            toast.success('Entrepot updated successfully');
+                        }
+                    }
+                } else {
+                    // If no new image selected, close modal and show success message
+                    closeEditModal();
+                    toast.success('Entrepot updated successfully');
+                }
+            }
+        } catch (error) {
+            console.error('Error updating entrepot:', error);
+            toast.error('An error occurred while updating entrepot');
+        }
+    };
+
     return (
-        <div className="home">
-            <div>
-                <SearchInput onSearch={handleSearch} />
-                <div className="change">
-                    <div className="headstore">
-                        <p className="titlehead">Entrepots</p>
-                        <div className="buttons">
-                            <button onClick={openAddEntrepotModal} className="btn" id="add"> Add entrepot</button>
-                           
-                        </div>
+        <div className="home" style={{ display: "flex", flexDirection: "column" }}>
+            <SearchInput onSearch={handleSearch} />
+            <div></div>
+            <div className="change">
+                <div className="headstore">
+                    <p className="titlehead">Entrepots</p>
+                    <div className="buttons">
+                        <button onClick={() => setIsAddEntrepotModalOpen(true)} className="btn" id="add"> Add entrepot</button>
                     </div>
-                    <div>
-                        {getCurrentPageEntrepots().map(entrepot => (
-                            <div key={entrepot.id}  > 
-                                <div  className="storform">
-                                  {entrepot.image ? (
-                                  <img src={entrepot.image} alt={entrepot.name} className="imgstore" />
-                                         ) : (
+                </div>
+                <div>
+                    {getCurrentPageEntrepots().map(entrepot => (
+                        <div key={entrepot.id}  > 
+                            <div  className="storform">
+                                {entrepot.image ? (
+                                    <img src={entrepot.image} alt={entrepot.name} className="imgstore" />
+                                ) : (
                                     <div className="rectangle"></div>
-                                          )}
-                                       <div  className="formstore">
-                                       <div>
+                                )}
+                                <div  className="formstore">
+                                    <div>
                                         <p id="storename">{entrepot.name}</p>
                                         <p id="info">{entrepot.location}</p>
                                         <p id="info">{entrepot.Number}</p>
                                         <p id="info">{entrepot.capacite}</p>
-                                        <p id="info">{entrepot.description}</p> 
-                                       </div>
-                                       <div className="decison">
-                                       <button className="btn" id="editstore" onClick={() => openEditModal(entrepot.id)}>Edit</button> 
-                                      <img src={trash} className="trachs"    onClick={() => openDeleteConfirmationModal(entrepot.id)} />    
+                                      
+                                    </div>
+                                    <div>  <p id="info">{entrepot.description}</p> </div>
+                                    <div className="decison">
+                                        <button onClick={() => openEditModal(entrepot)}className="trachs"  id="editstore">Edit</button> 
+                                        <img src={trash} className="trachs" onClick={() => openDeleteConfirmationModal(entrepot.id)} />    
+                                    </div>
                                 </div>
-                              </div>
-                               </div>
                             </div>
-                                
-                             
-                    ))}
-                      
-                        <div className="pagination">
-                            <button onClick={previousPage} disabled={currentPage === 1}>Previous</button>
-                            <span>Page {currentPage} of {getTotalPages()}</span>
-                            <button onClick={nextPage} disabled={currentPage === getTotalPages()}>Next</button>
                         </div>
+                    ))}
+                    <div className="pagination">
+                        <button onClick={previousPage} disabled={currentPage === 1}>Previous</button>
+                        <span>Page {currentPage} of {getTotalPages()}</span>
+                        <button onClick={nextPage} disabled={currentPage === getTotalPages()}>Next</button>
                     </div>
                 </div>
             </div>
-
-
-            <Addstore isOpen={isAddEntrepotModalOpen} onClose={closeAddEntrepotModal} />
-            {isEditModalOpen && editedEntrepot && (
-    <Modal
-        isOpen={isEditModalOpen}
-        onRequestClose={closeEditModal}
-        style={{
-            content: {
-                height: '20rem',
-                width:"25rem", // Adjust height as needed
-                backgroundColor: '#fff',
-                marginLeft:"30rem",
-                marginTop:"3rem"
-              
-             // Change background color as needed
-            }
-        }}
-    >
-      
-        <Formik
-            initialValues={{
-                name: editedEntrepot.name,
-                location: editedEntrepot.location,
-                number: editedEntrepot.Number,
-                capacite: editedEntrepot.capacite,
-                description: editedEntrepot.description
-
-            }}
-            onSubmit={(values, { setSubmitting }) => {
-               
-                setSubmitting(false);
-                closeEditModal();
-            }}
-        >
-            <Form className="space">
-            <p className="head" id="newUser">Edit Entrepot</p>
-                <div  className="User">
-                    <label htmlFor="name">Name:</label>
-                    <Field type="text" name="name"    className="columnUser" />
-                </div>
-                <div  className="User">
-                    <label htmlFor="location">Location:</label>
-                    <Field type="text" name="location"    className="columnUser" />
-                </div>
-                <div  className="User">
-                    <label htmlFor="number">Number:</label>
-                    <Field type="number" name="number"    className="columnUser" />
-                </div>
-                <div  className="User">
-                    <label htmlFor="number">Capacite</label>
-                    <Field type="number" name="capacite"    className="columnUser" />
-                </div>
-                <div  className="User">
-                    <label htmlFor="description">Description:</label>
-                    <Field type="text" name="description"     className="columnUser"/>
-                </div>
-                <div className='buttons'>
-                <button onClick={closeEditModal} className="cancel">Cancel</button>
-                <button type="submit" className='add'>Update</button>
-                </div>
-            </Form>
-        </Formik>
-    </Modal>
-)}
-
+            <Addstore isOpen={isAddEntrepotModalOpen} onClose={() => setIsAddEntrepotModalOpen(false)} />
             <ToastContainer/>
+            {editingEntrepot && (
+                <Modal
+                    isOpen={isEditModalOpen}
+                    onRequestClose={closeEditModal}
+                    style={{
+                        content: {
+                            height: '25rem',
+                            width: '25rem',
+                            backgroundColor: '#fff',
+                            marginLeft: '30rem'
+                        }
+                    }}
+                >
+                    <div className="space">
+                        <p className="head" id="newUser">Edit Entrepot</p>
+                        <div className="User">
+                            <label>Image:</label>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => setNewImage(e.target.files ? e.target.files[0] : null)}
+                            />
+                        </div>
+                        <div className="User">
+                            <label>Name:</label>
+                            <input
+                                className="columnUser"
+                                type="text"
+                                value={editingEntrepot.name}
+                                onChange={e =>
+                                    setEditingEntrepot({ ...editingEntrepot, name: e.target.value })
+                                }
+                            />
+                        </div>
+                        <div className="User">
+                            <label>Location:</label>
+                            <input
+                                className="columnUser"
+                                type="text"
+                                value={editingEntrepot.location}
+                                onChange={e =>
+                                    setEditingEntrepot({ ...editingEntrepot, location: e.target.value })
+                                }
+                            />
+                        </div>
+                        <div className="User">
+                            <label>Number:</label>
+                            <input
+                                className="columnUser"
+                                type="text"
+                                value={editingEntrepot.Number}
+                                onChange={e =>
+                                    setEditingEntrepot({ ...editingEntrepot, Number: parseInt(e.target.value) || 0 })
+                                }
+                            />
+                        </div>
+                        <div className="User">
+                            <label>Capacity:</label>
+                            <input
+                                className="columnUser"
+                                type="text"
+                                value={editingEntrepot.capacite}
+                                onChange={e =>
+                                    setEditingEntrepot({ ...editingEntrepot, capacite: parseInt(e.target.value) || 0 })
+                                }
+                            />
+                        </div>
+                        <div className="User">
+                            <label>Description:</label>
+                            <input
+                                className="columnUser"
+                                type="text"
+                                value={editingEntrepot.description}
+                                onChange={e =>
+                                    setEditingEntrepot({ ...editingEntrepot, description: e.target.value })
+                                }
+                            />
+                        </div>
+                     
+                        <div className="buttons">
+                            <button onClick={closeEditModal} className="cancel">Cancel</button>
+                            <button onClick={() => updateEntrepot(editingEntrepot)} className='add'>Update</button>
+                        </div>
+                    </div>
+                </Modal>
+            )}
         </div>
     )
 }

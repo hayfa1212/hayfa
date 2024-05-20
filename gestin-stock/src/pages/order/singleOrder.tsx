@@ -159,7 +159,7 @@ const OrderDetails: React.FC = () => {
     try {
       // Validate the edited order using the productSchema
       await productSchema.validate(editedOrder as Commande, { abortEarly: false });
-      
+      const updatedOrderValue = (editedOrder as Commande).quantity * (editedOrder as Commande).price;
       // Update the commande data in the database
       const { error } = await supabase
         .from("commande")
@@ -167,6 +167,7 @@ const OrderDetails: React.FC = () => {
           quantity: (editedOrder as Commande).quantity,
           price: (editedOrder as Commande).price,
           status: (editedOrder as Commande).status,
+          orderValue: updatedOrderValue,
         })
         .eq("id", commande?.id);
 
@@ -181,6 +182,7 @@ const OrderDetails: React.FC = () => {
             quantity: (editedOrder as Commande).quantity,
             price: (editedOrder as Commande).price,
             status: (editedOrder as Commande).status,
+            orderValue:updatedOrderValue,
           }));
         }
       } else {
@@ -295,7 +297,7 @@ const OrderDetails: React.FC = () => {
               </div>
               <div className="columns">
                 <p id="titre">Product ID:</p>
-                <p id="valeur">{product.id}</p>
+                <p id="valeur">{commande.id}</p>
               </div>
               <div className="columns">
                 <p id="titre">Product Category:</p>

@@ -1,8 +1,8 @@
 import supabase from "../../utils/api";
-import React, { useState } from "react";
+import React from "react";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
-import { ToastContainer, toast } from 'react-toastify'; // Importez toast
+import { ToastContainer, toast } from 'react-toastify';
 import google from '../../Assets/google.png'
 import Title from "../../Components/siginCommun/title";
 import './authentifier.css'
@@ -10,48 +10,78 @@ import Logo from "../../Components/siginCommun/logoSigin";
 import { Link, useNavigate } from "react-router-dom";
 import Msglink from "../../Components/siginCommun/sigincommun";
 
-
 interface LoginFormValues {
   email: string;
   password: string;
+  connecter:boolean;
  
 }
 
 const initialValues: LoginFormValues = {
   email: "",
   password: "",
- 
+  connecter:false,
+
 };
 
 const validationSchema = Yup.object({
   email: Yup.string().email("Invalid email address").required("Required"),
   password: Yup.string().required("Required"),
-  rememberMe: Yup.boolean(),
 });
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+
   const handleLogin = async (values: LoginFormValues) => {
-    
+    try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email: values.email,
         password: values.password,
+        
       });
-      if (!error) {
-        toast.success('Success');
-        navigate('/inventory')
-const { error } = await supabase
- .from('utilisateur').update({ connecter: true })
-  .eq('email', values.email)
-      
-        const setedSession=  await supabase.auth.setSession({
-          access_token:data.session?.access_token,
-          refresh_token:data.session?.refresh_token,
-        })
+
+      if (error) {
+        toast.error('Error');
+        return;
       }
-   if(error?.status == 400){
-    toast.error('error')
-   }
+ await supabase.from('utilisateur'). update({ connecter: true }).eq('email',values.email)
+     
+      toast.success('Success');
+      
+
+      const { data: user, error: userError } = await supabase
+        .from('utilisateur')
+        .select('role')
+        .eq('email', values.email)
+        .single();
+
+      if (userError) {
+        toast.error('Error fetching user data');
+        return;
+      }
+
+      if (user && user.role === 'admin') {
+        navigate('/dash');
+      }
+      if (user && user.role === 'responsable logistique') {
+        navigate('/orders');
+      }
+      if (user && user.role === 'responsable stock') {
+        navigate('/inventory');
+      }
+      else{
+      
+        toast.error('you have no role in the systeme')
+      }
+
+
+      await supabase.auth.setSession({
+        access_token: data.session?.access_token,
+        refresh_token: data.session?.refresh_token,
+      });
+    } catch (error) {
+      toast.error('An unexpected error occurred');
+    }
   };
 
   return (

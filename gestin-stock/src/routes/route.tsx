@@ -35,6 +35,8 @@ import Sales from "../pages/BI/sales";
 import Achat from "../pages/BI/achat";
 import Tableubord from "../pages/BI/tableaubord";
 import Profites from "../pages/BI/graph4";
+import Exemple from "../pages/BI/exemple";
+import TBD from "../pages/BI/tableauxbord2";
 
 
 
@@ -67,6 +69,7 @@ export default function AppRoutes() {
                 <Sidebar />
                 <div>
                   <Routes>
+                  <Route path="/tb" element={<TBD/>} />
                   <Route path="/profit" element={<Profites />} />
                   <Route path="/dash" element={<Tableubord />} />
                     <Route path="/inventory" element={<Consulterprod />} />

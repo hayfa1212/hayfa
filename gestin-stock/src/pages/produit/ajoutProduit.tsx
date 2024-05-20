@@ -54,6 +54,7 @@ const validationSchema = Yup.object({
   unit: Yup.string(),
   expire: Yup.date(),
   thershold: Yup.number().typeError("you should put numbre"),
+ 
 });
 
 interface AjoutproduitProps {

@@ -41,17 +41,14 @@ interface Warehouse {
   id: number;
   name: string;
 }
-interface Commande{
-  
-  ontheway: number;
-}
+
 
 const ProductDetails: React.FC = () => {
   const { productId } = useParams<{ productId: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const [supplier, setSupplier] = useState<Supplier | null>(null);
   const [warehouse, setWarehouse] = useState<Warehouse | null>(null);
-  const [commande, setCommande] = useState<Commande | null>(null);
+  
   const [isEditing, setIsEditing] = useState(false);
   const [editedProduct, setEditedProduct] = useState<Product | null>(null);
   const [allSuppliers, setAllSuppliers] = useState<Supplier[]>([]);

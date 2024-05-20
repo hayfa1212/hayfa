@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import SearchInput from "../../searchBar";
 import supabase from "../../utils/api";
 import { ToastContainer, toast } from "react-toastify";
 import AjoutCommande from "../order/creeorder";
 import './suivieorder.css';
-import trash from '../../Assets/Trash.svg';
+import trash from '../../Assets/poubelle.png';
 import Swal from 'sweetalert2';
 import OrdersCounter from "./summary";
 
@@ -19,6 +19,7 @@ interface Commande {
     buyingPrice: number;
     dateDelivery: string;
     status: string;
+    type: string;
 }
 
 const PAGE_SIZE = 6;
@@ -30,16 +31,51 @@ const ConsulterCommande: React.FC = () => {
     const [isAddOrderModalOpen, setIsAddOrderModalOpen] = useState(false);
     const [deleteCommandId, setDeleteCommandId] = useState<number | null>(null);
     const [editedCommandeId, setEditedCommandeId] = useState<number | null>(null);
+    const [userRole, setUserRole] = useState<string | null>(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
-        fetchData();
-    }, []);
+        const checkLoggedIn = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                navigate("/");
+                toast.error('You should login');
+            } else {
+                const { data: userData, error: userError } = await supabase
+                    .from("utilisateur")
+                    .select("role")
+                    .eq("email", user.email)
+                    .single();
+    
+                if (userError) {
+                    console.error("Error fetching user data:", userError);
+                    toast.error("An error occurred while fetching user data");
+                } else {
+                    const role = userData?.role;
+                    if (!role) {
+                        console.error("User role not found");
+                        toast.error("User role not found");
+                    } else {
+                        setUserRole(role);
+                    }
+                }
+            }
+        };
+        checkLoggedIn();
+    }, [navigate]);
+    
+    useEffect(() => {
+        fetchData(searchTerm);
+    }, [searchTerm]);
 
-    const fetchData = async () => {
+    const fetchData = async (searchTerm = '') => {
         try {
-            const { data, error } = await supabase
-                .from('commande')
-                .select();
+            let query = supabase.from('commande').select();
+            if (searchTerm) {
+                query = query.ilike('product', `%${searchTerm}%`);
+            }
+
+            const { data, error } = await query;
 
             if (!error) {
                 setCommandes(data || []);
@@ -57,21 +93,18 @@ const ConsulterCommande: React.FC = () => {
         setCurrentPage(1);
     };
 
-    const filterCommandes = (commandes: Commande[], searchTerm: string) => {
-        return commandes.filter(commande =>
-            commande.product.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-    };
-
     const getCurrentPageCommandes = () => {
-        const filteredCommandes = filterCommandes(commandes, searchTerm);
         const startIndex = (currentPage - 1) * PAGE_SIZE;
         const endIndex = startIndex + PAGE_SIZE;
-        return filteredCommandes.slice(startIndex, endIndex);
+        return commandes.slice(startIndex, endIndex);
     };
 
     const openAddOrderModal = () => {
-        setIsAddOrderModalOpen(true);
+        if (userRole !== "responsable stock") {
+            setIsAddOrderModalOpen(true);
+        } else {
+            toast.error("You are not authorized to add commands.");
+        }
     };
 
     const closeAddOrderModal = () => {
@@ -86,7 +119,7 @@ const ConsulterCommande: React.FC = () => {
                 .eq('id', id);
 
             toast.success('Statut mis à jour avec succès');
-            fetchData();
+            fetchData(searchTerm);
             setEditedCommandeId(null);
         } catch (error) {
             console.error('Erreur lors de la mise à jour du statut :', error);
@@ -95,19 +128,23 @@ const ConsulterCommande: React.FC = () => {
     };
 
     const openDeleteConfirmationModal = (id: number) => {
-        Swal.fire({
-            title: 'Confirm Deletion',
-            text: 'Are you sure you want to delete this command?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, delete it'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                deleteCommande(id);
-            }
-        });
+        if (userRole !== "responsable stock") {
+            Swal.fire({
+                title: 'Confirm Deletion',
+                text: 'Are you sure you want to delete this command?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    deleteCommande(id);
+                }
+            });
+        } else {
+            toast.error("You are not authorized to add commands.");
+        }
     };
 
     const deleteCommande = async (id: number) => {
@@ -119,7 +156,7 @@ const ConsulterCommande: React.FC = () => {
                     .eq('id', id);
 
                 toast.success('Commande supprimée avec succès');
-                fetchData();
+                fetchData(searchTerm);
             } catch (error) {
                 console.error('Erreur lors de la suppression de la commande :', error);
                 toast.error('Une erreur est survenue lors de la suppression de la commande');
@@ -134,14 +171,14 @@ const ConsulterCommande: React.FC = () => {
     };
 
     const nextPage = () => {
-        const totalPages = Math.ceil(filterCommandes(commandes, searchTerm).length / PAGE_SIZE);
+        const totalPages = Math.ceil(commandes.length / PAGE_SIZE);
         if (currentPage < totalPages) {
             setCurrentPage(currentPage + 1);
         }
     };
 
     const getTotalPages = () => {
-        return Math.ceil(filterCommandes(commandes, searchTerm).length / PAGE_SIZE);
+        return Math.ceil(commandes.length / PAGE_SIZE);
     };
 
     const enableEditStatus = (id: number) => {
@@ -151,6 +188,7 @@ const ConsulterCommande: React.FC = () => {
     const disableEditStatus = () => {
         setEditedCommandeId(null);
     };
+
     const downloadAllCommande = () => {
         // Generate CSV content
         const csvContent = "data:text/csv;charset=utf-8," + 
@@ -189,6 +227,7 @@ const ConsulterCommande: React.FC = () => {
                                     <th>Quantity</th>
                                     <th>Order ID</th>
                                     <th>Date Delivery</th>
+                                    <th>type</th>
                                     <th>Status</th>
                                     <th>Action</th>
                                 </tr>
@@ -206,6 +245,7 @@ const ConsulterCommande: React.FC = () => {
                                             <td>{commande.quantity}</td>
                                             <td>{commande.id}</td>
                                             <td>{commande.dateDelivery}</td>
+                                            <td>{commande.type}</td>
                                             <td>
                                                 {editedCommandeId === commande.id ? (
                                                     <select
@@ -225,7 +265,7 @@ const ConsulterCommande: React.FC = () => {
                                                 )}
                                             </td>
                                             <td>
-                                                <img src={trash} className="trash-icon" onClick={() => openDeleteConfirmationModal(commande.id)} alt="Delete" />
+                                                <img src={trash} className="trach" onClick={() => openDeleteConfirmationModal(commande.id)} alt="Delete" />
                                             </td>
                                         </tr>
                                         {index !== getCurrentPageCommandes().length - 1 && (

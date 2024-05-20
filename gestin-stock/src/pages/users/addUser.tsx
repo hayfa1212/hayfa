@@ -13,10 +13,10 @@ interface User {
   email: string;
   phone: number;
   role: string;
-  image: File | null; // Modifié pour contenir un objet File
+  image: File | null; // Modify to contain a File object
 }
 
-interface AddSupplierProps {
+interface AddSupplierProps {//MODAL
   isOpen: boolean;
   onClose: () => void;
 }
@@ -26,7 +26,7 @@ const initialValues: User = {
   email: "",
   phone: 0,
   role: "",
-  image: null, // Modifié pour contenir un objet File
+  image: null, 
 };
 
 const validationSchema = Yup.object({
@@ -81,7 +81,7 @@ const imageUrl = response.data.publicUrl;
       }
       const { error: authError } = await supabase.auth.signUp({
         email: values.email,
-        password: "your_default_password_here", // You can set a default password for new users
+        password: "admin", // You can set a default password for new users
       });
 
       if (authError) {

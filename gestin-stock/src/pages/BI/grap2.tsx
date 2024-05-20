@@ -87,17 +87,7 @@ const TotalOrderValue: React.FC = () => {
     ],
   };
 
-  const options = {
-    scales: {
-      yAxes: [
-        {
-          ticks: {
-            beginAtZero: true,
-          },
-        },
-      ],
-    },
-  };
+ 
 
   if (loading) {
     return (
@@ -109,7 +99,7 @@ const TotalOrderValue: React.FC = () => {
 
   return (
     <div className='graph'>
-<p >Sales & Purchase</p>
+<p  >Sales & Purchase</p>
       <Bar data={data} />
     </div>
   );

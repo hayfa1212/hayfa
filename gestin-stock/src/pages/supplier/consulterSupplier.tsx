@@ -4,8 +4,8 @@ import supabase from "../../utils/api";
 import { ToastContainer, toast } from "react-toastify";
 import './consulterSupplier.css'
 import '../produit/consulterProduit.css';
-import trash from '../../Assets/Trash.svg'
-import editIcon from '../../Assets/edition.png'
+import trash from '../../Assets/poubelle.png'
+import editIcon from '../../Assets/editer.png'
 import Swal from 'sweetalert2';
 
 import Modal from "react-modal";
@@ -33,13 +33,33 @@ const ConsulterFournisseur: React.FC = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [totalQuantity, setTotalQuantity] = useState<number>(0);
+    const [userRole, setUserRole] = useState<string | null>(null);
     useEffect(() => {
         const checkLoggedIn = async () => {
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) {
                 navigate("/");
                 toast.error('You should login')
-            }
+            }else {
+                const { data: userData, error: userError } = await supabase
+                    .from("utilisateur")
+                    .select("role")
+                    .eq("email", user.email)
+                    .single();
+    
+                if (userError) {
+                    console.error("Error fetching user data:", userError);
+                    toast.error("An error occurred while fetching user data");
+                } else {
+                    const role = userData?.role;
+                    if (!role) {
+                        console.error("User role not found");
+                        toast.error("User role not found");
+                    } else {
+                        setUserRole(role);
+                    }
+                }}
         };
         checkLoggedIn();
     }, [navigate]);
@@ -52,6 +72,7 @@ const ConsulterFournisseur: React.FC = () => {
                     .select();
 
                 if (!error) {
+                    
                     setSuppliers(data || []);
                 } else {
                     toast.error('Error fetching suppliers');
@@ -73,13 +94,18 @@ const ConsulterFournisseur: React.FC = () => {
 
     const filterSuppliers = (searchTerm: string) => {
         const filtered = suppliers.filter(supplier =>
-            supplier.name && supplier.name.toLowerCase().includes(searchTerm.toLowerCase())
+            supplier.name && supplier.name.toLowerCase().includes(searchTerm.toLowerCase()),
+            
         );
         setSuppliers(filtered);
     };
 
     const openAddSupplierModal = () => {
-        setIsAddSupplierModalOpen(true);
+        if (userRole !== "responsable stock") {
+        setIsAddSupplierModalOpen(true);}
+        else {
+            toast.error("You are not authorized to add supplier.");
+        }
     };
 
     const closeAddSupplierModal = () => {
@@ -126,8 +152,12 @@ const ConsulterFournisseur: React.FC = () => {
    
 
     const openEditModal = (supplier: Supplier) => {
+        if (userRole !== "responsable stock") {
         setEditSupplier(supplier);
-        setIsEditModalOpen(true);
+        setIsEditModalOpen(true);}
+        else {
+            toast.error("You are not authorized to add supplier.");
+        }
     };
     
     // Function to close the edit modal
@@ -161,6 +191,36 @@ const ConsulterFournisseur: React.FC = () => {
     };
     
 
+
+    useEffect(() => {
+        const calculateTotalQuantity = async () => {
+            try {
+                const { data: commandeData, error: commandeError } = await supabase
+                    .from('commande')
+                    .select('product, quantity')
+                    .eq('supplier.product', 'commande.product');
+
+                if (!commandeError) {
+                    // Calculate total quantity
+                    let totalQuantity = 0;
+                    commandeData.forEach(commande => {
+                        totalQuantity += commande.quantity;
+                    });
+                    setTotalQuantity(totalQuantity);
+                } 
+            } catch (error) {
+                console.error('Error calculating total quantity:', error);
+                toast.error('An error occurred while calculating total quantity');
+            }
+        };
+        calculateTotalQuantity();
+    }, [suppliers]);
+
+
+
+
+
+    
    
     return (
         <div className="home">
@@ -197,11 +257,12 @@ const ConsulterFournisseur: React.FC = () => {
                         <td>{supplier.product}</td>
                         <td>{supplier.contact}</td>
                         <td>{supplier.email}</td>
-                        <td>{supplier.type}</td>
+                        <td style={{ color:supplier.type === 'Take Return' ? '#10A760' : 'red' }}>{supplier.type}</td>
                        <td>{supplier.onTheWay}</td>
                       <td>
                       <img src={editIcon} alt="Edit" className="trach" onClick={() => openEditModal(supplier)} />
                         <img src={trash} alt="Delete" className="trach" onClick={() => {
+                              if (userRole !== "responsable stock") {
                             Swal.fire({
                                 title: "Are you sure?",
                                 text: "You won't be able to revert this!",
@@ -214,7 +275,10 @@ const ConsulterFournisseur: React.FC = () => {
                                 if (result.isConfirmed) {
                                     deleteSupplier(supplier.id);
                                 }
-                            });
+                            });}
+                            else {
+                                toast.error("You are not authorized to add supplier.");
+                            }
                         }} />
                       </td>
                   </tr>
@@ -293,18 +357,22 @@ const ConsulterFournisseur: React.FC = () => {
                     setEditSupplier({ ...editSupplier, email: e.target.value })
                 }
             />
-        </div>
-        <div  className="User">
-            <label>Type:</label>
-            <input
-            className="columnUser"
-                type="text"
-                value={editSupplier.type}
-                onChange={e =>
-                    setEditSupplier({ ...editSupplier, type: e.target.value })
-                }
-            />
-        </div>
+        </div >
+        <div className="User">
+        <label>Type:</label>
+        <select
+    className="columnUser"
+    value={editSupplier.type}
+    onChange={e =>
+        setEditSupplier({ ...editSupplier, type: e.target.value })
+    }
+     >
+      
+    <option value="Take Return">Take Return</option>
+    <option value="	Not Take Return">	Not Take Return</option>
+     </select>
+     </div>
+
         <div  className="User">
             <label>On the Way:</label>
             <input

@@ -73,10 +73,15 @@ const EditsupplierModal: React.FC<EditSupplierModalProps> = ({
     <ErrorMessage name="product" component="div" className="error" />
   </div>
   <div className="User">
-    <label htmlFor="type" id="attribute">Type:</label>
-    <Field type="text" id="type" name="type" className="columnUser" />
-    <ErrorMessage name="type" component="div" className="error" />
-  </div>
+  <label htmlFor="type" id="attribute">Type:</label>
+  <Field as="select" id="type" name="type" className="columnUser">
+    <option value="">Select Type</option>
+    <option></option>
+    <option value="Take Return">Take Return</option>
+    <option value="Not Take Return">Not Take Return</option>
+  </Field>
+  <ErrorMessage name="type" component="div" className="error" />
+</div>
   <div className="User">
     <label htmlFor="onTheWay" id="attribute">On The Way:</label>
     <Field type="text" id="onTheWay" name="onTheWay" className="columnUser" />

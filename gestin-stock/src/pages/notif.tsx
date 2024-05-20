@@ -9,6 +9,7 @@ interface Product {
   thershold: number;
 }
 
+
 const ThresholdComponent: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [products, setProducts] = useState<Product[]>([]);
@@ -42,11 +43,9 @@ const ThresholdComponent: React.FC = () => {
     return <p>Loading...</p>;
   }
 
-  if (products.length === 0) {
-    return <p>No products found below the threshold.</p>;
-  }
+  
 
-  const numberOfProductsToReplenish = products.length;
+  const count= products.length;
 
   return (
     <div>
@@ -54,7 +53,7 @@ const ThresholdComponent: React.FC = () => {
       <ul>
         {products.map(product => (
           <li key={product.id} className="notification error">
-            <p>Il y a un risque de rupture pour ce produit : {product.product_Name}</p>
+            <p>There is a risk of shortage for this product:{product.product_Name}</p>
             
           </li>
         ))}
